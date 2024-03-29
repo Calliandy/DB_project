@@ -5,27 +5,18 @@
     <body>
         <h1 class="topic">使用者登入</h1>
         <?php
-            //建立資料庫連結
-            $servername="localhost";
-            $username = "root";
-            $password = "wah";
-            $dbname="WAH";
-
-            $conn=new mysqli($servername, $username , $password, $dbname);
-
-            if($conn->connect_error){
-                die("資料庫連接失敗: ".$conn->connect_error);
-            }
-
+            require_once("db.php");
+        ?>
+        <?php
             if($_SERVER["REQUEST_METHOD"]=="POST"){
                 if(isset($_POST['loginBtn'])){
                     if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
                         echo "看來有人忘記輸入囉";
                     }else{
                         $account = $_POST['userInputAccount'];
-                        $password = $_POST['userInputPassword'];
+                        $userPassword = $_POST['userInputPassword'];
                         //執行登入相關操作
-                        $sql="SELECT * from users WHERE account='$account' AND password = '$password'";
+                        $sql="SELECT * from users WHERE account='$account' AND password = '$userPassword'";
                         $result = $conn -> query($sql);
 
                         if($result-> num_rows==1){
@@ -43,7 +34,7 @@
             }
         ?>
 
-        <form method="POST" action=""> 
+        <form method="POST" action="">
             <table>
                 <tr>
                     <td>使用者ID:</td>
@@ -64,4 +55,4 @@
             $conn->close();
         ?>
     </body>
-</html>
+</html>  

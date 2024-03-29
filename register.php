@@ -3,18 +3,9 @@
     <head>
         <meta charset="utf-8">
         <?php
-            //建立資料庫連結
-            $servername="localhost";
-            $username = "root";
-            $password = "wah";
-            $dbname="WAH";
-
-            $conn=new mysqli($servername, $username , $password, $dbname);
-
-            if($conn->connect_error){
-                die("資料庫連接失敗: ".$conn->connect_error);
-            }
-
+            require_once("db.php");
+        ?>
+        <?php
             if($_SERVER["REQUEST_METHOD"]=="POST"){
                 //if(isset($_POST['registerBtn'])){
                     if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
@@ -60,4 +51,4 @@
             </table>
         </form>
     </body>
-</html>
+</html>  
