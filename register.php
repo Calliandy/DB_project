@@ -7,19 +7,20 @@
         ?>
         <?php
             if($_SERVER["REQUEST_METHOD"]=="POST"){
-                //if(isset($_POST['registerBtn'])){
-                    if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
+                if(isset($_POST['registerBtn'])){
+                    if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])||empty($_POST['userInputID'])){
                         echo "<script>alert('還敢忘記輸入阿');</script>";
                     }else{
+                        $userID = $_POST['userInputID'];
                         $account = $_POST['userInputAccount'];
                         $userPassword = $_POST['userInputPassword'];
 
-                        $sql="SELECT * FROM users WHERE account = '$account'";
+                        $sql="SELECT * FROM users WHERE user_ID = '$userID'";
                         $result = $conn ->query($sql);
                         if($result -> num_rows > 0){
                             echo "此使用者ID已有人使用";
                         }else{
-                            $sql = "INSERT INTO users (account,password) VALUES ('$account','$userPassword')";
+                            $sql = "INSERT INTO `users`(`user_ID`, `account`, `password`, `role`) VALUES ('$userID','$account','$userPassword','user')";
                             if($conn->query($sql)===TRUE){
                                 header("Location: login.php");
                                 exit();
@@ -28,7 +29,7 @@
                             }
                         }
                     }
-                //}
+                }
             }
             $conn->close();
         ?>
@@ -38,7 +39,11 @@
         <form method="POST" action="register.php">
             <table>
                 <tr>
-                    <td>使用者ID:</td>
+                    <td>使用者名稱:</td>
+                    <td><input type="text" maxlength="50" id="userInputID" name="userInputID"></td>
+                </tr>
+                <tr>
+                    <td>帳號:</td>
                     <td><input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"></td>
                 </tr>
                 <tr>

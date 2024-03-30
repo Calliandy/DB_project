@@ -7,7 +7,9 @@
 
     $conn=new mysqli($servername, $username , $password, $dbname);
 
-    if($conn->connect_error){
-        die("資料庫連接失敗: ".$conn->connect_error);
+    if($conn){
+        echo"Connect! ";
+    }else{
+        echo "Unconnect!";
     }
 ?>
