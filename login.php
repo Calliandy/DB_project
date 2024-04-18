@@ -1,13 +1,15 @@
 <html lang="zh-TW">
     <head>
         <meta charset="utf-8">
-    </head>
-    <body>
-        <h1 class="topic">使用者登入</h1>
         <?php
             require_once("db.php");
         ?>
+    </head>
+    <body>
+        <h1 class="topic">使用者登入</h1>
+        
         <?php
+            session_start();
             if($_SERVER["REQUEST_METHOD"]=="POST"){
                 if(isset($_POST['loginBtn'])){
                     if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
@@ -15,12 +17,14 @@
                     }else{
                         $account = $_POST['userInputAccount'];
                         $userPassword = $_POST['userInputPassword'];
+                        $hashedPassword=password_hash($userPassword,PASSWORD_DEFAULT);
                         //執行登入相關操作
-                        $sql="SELECT * from users WHERE account='$account' AND password = '$userPassword'";
-                        $result = $conn -> query($sql);
-
-                        if($result-> num_rows==1){
+                        $sql="SELECT * from users WHERE account='$account'";
+                        $result = mysqli_query($conn,$sql);
+                        $rowResult=mysqli_fetch_assoc($result);
+                        if(($result-> num_rows==1)&& (password_verify($userPassword,$rowResult['password']))){
                             //登入成功
+                            $_SESSION['username']=$account;
                             header("Location: menu.php");
                             exit();
                         } else{

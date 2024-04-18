@@ -7,9 +7,9 @@
 
     $conn=new mysqli($servername, $username , $password, $dbname);
 
-    if($conn){
-        echo"Connect! ";
-    }else{
-        echo "Unconnect!";
-    }
+    // if($conn){
+    //     echo"Connect! ";
+    // }else{
+    //     echo "Unconnect!";
+    // }
 ?>

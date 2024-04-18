@@ -5,22 +5,28 @@
         <?php
             require_once("db.php");
         ?>
+
         <?php
             if($_SERVER["REQUEST_METHOD"]=="POST"){
+                if(isset($_POST['loginBtn'])){
+                    header("Location: login.php");
+                    exit();
+                }
                 if(isset($_POST['registerBtn'])){
-                    if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])||empty($_POST['userInputID'])){
-                        echo "<script>alert('還敢忘記輸入阿');</script>";
+                    if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
+                        echo "<script>alert('請記得輸入您的註冊資訊');</script>";
                     }else{
                         $userID = $_POST['userInputID'];
                         $account = $_POST['userInputAccount'];
                         $userPassword = $_POST['userInputPassword'];
 
-                        $sql="SELECT * FROM users WHERE user_ID = '$userID'";
+                        $sql="SELECT * FROM users WHERE account = '$account'";
                         $result = $conn ->query($sql);
                         if($result -> num_rows > 0){
                             echo "此使用者ID已有人使用";
                         }else{
-                            $sql = "INSERT INTO `users`(`user_ID`, `account`, `password`, `role`) VALUES ('$userID','$account','$userPassword','user')";
+                            $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
+                            $sql = "INSERT INTO `users`(`account`, `password`, `role`) VALUES ('$account','$hashedPassword','user')";
                             if($conn->query($sql)===TRUE){
                                 header("Location: login.php");
                                 exit();
@@ -39,10 +45,6 @@
         <form method="POST" action="register.php">
             <table>
                 <tr>
-                    <td>使用者名稱:</td>
-                    <td><input type="text" maxlength="50" id="userInputID" name="userInputID"></td>
-                </tr>
-                <tr>
                     <td>帳號:</td>
                     <td><input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"></td>
                 </tr>
@@ -52,6 +54,7 @@
                 </tr>
                 <tr>
                     <td><button type="submit" name="registerBtn">註冊</button></td>
+                    <button type="submit" name="loginBtn">登入頁面</button>
                 </tr>
             </table>
         </form>
