@@ -24,7 +24,7 @@
                         $rowResult=mysqli_fetch_assoc($result);
                         if(($result-> num_rows==1)&& (password_verify($userPassword,$rowResult['password']))){
                             //登入成功
-                            $_SESSION['username']=$account;
+                            $_SESSION['username']=$rowResult['username'];
                             header("Location: menu.php");
                             exit();
                         } else{
