@@ -34,15 +34,11 @@
   <?php
     include "db.php";
     session_start();
-  ?>
-
-  <?php
     if (!isset($_SESSION['username'])) {
         echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
         exit(); 
     }
-    echo "hi ," . $_SESSION['username'];
-        ?>
+  ?>
 </head>
 
 <body class="sub_page">
@@ -71,11 +67,20 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  ">
+              <?php
+                echo "<li class='nav-item '> <p class='nav-link'>你好，".$_SESSION['username']."</p></li>";
+              ?>
               <li class="nav-item ">
-                <a class="nav-link" href="index.html">Home </a>
+                <a class="nav-link" href="goods.php">商品頁面 </a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="sellItems.php">刊登商品 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fa fa-user" aria-hidden="true"></i> Login</a>
+                <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> 我的個人資訊</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
               </li>
               <form class="form-inline">
                 <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">

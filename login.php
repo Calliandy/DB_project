@@ -49,8 +49,14 @@
                         if(($result-> num_rows==1)&& (password_verify($userPassword,$rowResult['password']))){
                             //登入成功
                             $_SESSION['username']=$rowResult['username'];
-                            header("Location: menu.php");
-                            exit();
+                            if($rowResult['role']=="user"){
+                              header("Location: menu.php");
+                              exit();
+                            }elseif($rowResult['role']=="admin"){
+                              header("Location: listUsers.php");
+                              exit();
+                            }
+                            
                         } else{
                             echo"登入失敗";
                         }
@@ -209,18 +215,6 @@
             <div class="info_links">
               <a class="active" href="index.html">
                 Home
-              </a>
-              <a class="" href="about.html">
-                About
-              </a>
-              <a class="" href="service.html">
-                Services
-              </a>
-              <a class="" href="why.html">
-                Why Us
-              </a>
-              <a class="" href="team.html">
-                Team
               </a>
             </div>
           </div>

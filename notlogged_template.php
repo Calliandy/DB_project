@@ -126,7 +126,7 @@
               <a href="">
                 <i class="fa fa-map-marker" aria-hidden="true"></i>
                 <span>
-                  Location
+                  Arabia
                 </span>
               </a>
               <a href="">

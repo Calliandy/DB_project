@@ -32,40 +32,13 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-            include "db.php";
-            session_start();
-            if($_SERVER["REQUEST_METHOD"]=="POST"){
-                if(isset($_POST['loginBtn'])){
-                    header("Location: login.php");
-                    exit();
-                }
-                if(isset($_POST['registerBtn'])){
-                    if(empty($_POST['userInputName'])||empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
-                        echo "<script>alert('請記得輸入您的註冊資訊');</script>";
-                    }else{
-                        $account = $_POST['userInputAccount'];
-                        $userName = $_POST['userInputName'];
-                        $userPassword = $_POST['userInputPassword'];
-
-                        $sql="SELECT * FROM users WHERE username = '$username'";
-                        $result = $conn ->query($sql);
-                        if($result -> num_rows > 0){
-                            echo "此使用者名稱已有人使用";
-                        }else{
-                            $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
-                            $sql = "INSERT INTO `users`(`username`,`account`, `password`, `role`) VALUES ('$userName','$account','$hashedPassword','user')";
-                            if($conn->query($sql)===TRUE){
-                                header("Location: login.php");
-                                exit();
-                            } else {
-                                echo "註冊失敗: ".$conn->error;
-                            }
-                        }
-                    }
-                }
-            }
-            $conn->close();
-        ?>
+    include "db.php";
+    session_start();
+    if (!isset($_SESSION['username'])) {
+        echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
+        exit(); 
+    }
+  ?>
 </head>
 
 <body class="sub_page">
@@ -94,12 +67,22 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  ">
+              <?php
+                $userName=$_SESSION['username'];
+                echo "<li class='nav-item '> <p class='nav-link'>".$userName."</p></li>";
+              ?>
               <li class="nav-item ">
-                <a class="nav-link" href="index.html">Home </a>
+                <a class="nav-link" href="goods.php">商品頁面 </a>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link" href="sellItems.php">刊登商品 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fa fa-user" aria-hidden="true"></i> Login</a>
+                <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> 我的個人資訊</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+              </li> 
               <form class="form-inline">
                 <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
                   <i class="fa fa-search" aria-hidden="true"></i>
@@ -119,29 +102,48 @@
     <div class="container  ">
       <div class="heading_container heading_center">
         <h2>
-          註冊頁面
+          上架您的商品
         </h2>
       </div>
       <div class="row">
-        <div class="col-md-6 ">
-          <div class="img-box">
-            <img src="images/about_img.jpg" alt="">
-          </div>
-        </div>
         <div class="col-md-6">
           <div class="detail-box">
-            <h3>
-              您的註冊資訊請完整輸入在下方
-            </h3>
-            <p>
-                <form method="POST" action="">
-                    名稱:<input type="text" maxlength="50" id="userInputName" name="userInputName"><br>
-                    帳號:<input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"><br>
-                    密碼:<input type="password" maxlength="50" id="userInputPassword" name="userInputPassword"><br>
-                    <button type="submit" name="loginBtn">登入頁面</button>
-                    <button type="submit" name="registerBtn">註冊</button>
-                </form>
+            <form method="POST" action="">
+                <p>商品名稱:</p><input type="text" maxlength="50" id="productName" name="productName"><br>
+                <p>價格:</p><input type="text" maxlength="50" id="productPrice" name="productPrice"><br>
+                <p>想賣幾個:</p><input type="text" maxlength="50" id="productAmount" name="productAmount"><br>
+                <p>商品介紹</p><input type="text" maxlength="255" id="productIntro" name="productIntro"><br>
+                <p>商品封面圖片(請貼網址):</p><input type="text" maxlength="255" id="productCover" name="productCover"><br>
+                <button type="submit" name="uploadBtn">刊登</button>
+                <button type="reset" name="resetBtn">重設資訊</button>                
+            </form>
             </p>
+            <h3>
+                <?php
+                    if($_SERVER["REQUEST_METHOD"]=="POST"){
+                        if(isset($_POST['uploadBtn'])){
+                            if(empty($_POST['productName'])||empty($_POST['productPrice'])||empty($_POST['productAmount'])||empty($_POST['productCover'])||empty($_POST['productIntro'])){
+                                echo "<script>alert('您的商品資訊不完整');</script>";
+                            }else{
+                                $productName = $_POST['productName'];
+                                $productPrice = $_POST['productPrice'];
+                                $productAmount = $_POST['productAmount'];
+                                $productIntro = $_POST['productIntro'];
+                                $productCover = $_POST['productCover'];
+                                $userName=$_SESSION['username'];
+                                $sql="SELECT * FROM products WHERE productName = '$productName'";
+                                $result = mysqli_query($conn,$sql);
+                                $sql = "INSERT INTO `products`(`productName`,`productPrice`, `productAmount`, `productIntro`, `productCover`,`sellerName`) VALUES ('$productName','$productPrice','$productAmount','$productIntro','$productCover','$userName')";
+                                if($conn->query($sql)===TRUE){
+                                    echo "商品".$productName."上傳成功!";
+                                } else {
+                                    echo "上傳失敗 :(";
+                                }
+                            }
+                        }
+                    }
+                ?>
+            </h3>
           </div>
         </div>
       </div>
@@ -164,7 +166,7 @@
               <a href="">
                 <i class="fa fa-map-marker" aria-hidden="true"></i>
                 <span>
-                  Location
+                  Arabia
                 </span>
               </a>
               <a href="">
@@ -202,7 +204,7 @@
               Info
             </h4>
             <p>
-              necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful
+              uwu
             </p>
           </div>
         </div>
@@ -217,17 +219,6 @@
               </a>
             </div>
           </div>
-        </div>
-        <div class="col-md-6 col-lg-3 info_col ">
-          <h4>
-            Subscribe
-          </h4>
-          <form action="#">
-            <input type="text" placeholder="Enter email" />
-            <button type="submit">
-              Subscribe
-            </button>
-          </form>
         </div>
       </div>
     </div>

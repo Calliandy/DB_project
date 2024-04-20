@@ -32,40 +32,21 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-            include "db.php";
-            session_start();
-            if($_SERVER["REQUEST_METHOD"]=="POST"){
-                if(isset($_POST['loginBtn'])){
-                    header("Location: login.php");
-                    exit();
-                }
-                if(isset($_POST['registerBtn'])){
-                    if(empty($_POST['userInputName'])||empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
-                        echo "<script>alert('請記得輸入您的註冊資訊');</script>";
-                    }else{
-                        $account = $_POST['userInputAccount'];
-                        $userName = $_POST['userInputName'];
-                        $userPassword = $_POST['userInputPassword'];
-
-                        $sql="SELECT * FROM users WHERE username = '$username'";
-                        $result = $conn ->query($sql);
-                        if($result -> num_rows > 0){
-                            echo "此使用者名稱已有人使用";
-                        }else{
-                            $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
-                            $sql = "INSERT INTO `users`(`username`,`account`, `password`, `role`) VALUES ('$userName','$account','$hashedPassword','user')";
-                            if($conn->query($sql)===TRUE){
-                                header("Location: login.php");
-                                exit();
-                            } else {
-                                echo "註冊失敗: ".$conn->error;
-                            }
-                        }
-                    }
-                }
-            }
-            $conn->close();
-        ?>
+    include "db.php";
+    session_start();
+    $username = $_SESSION['username'];
+    $sql="SELECT * from users WHERE username='$username'";
+    $result = mysqli_query($conn,$sql);
+    $rowResult=mysqli_fetch_assoc($result);
+    if (!isset($_SESSION['username'])) {
+        echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
+        exit(); 
+    }
+    if ($rowResult['role']!="admin") {
+      echo "<script>alert('您不是管理員!'); window.location.href = 'login.php';</script>";
+      exit(); 
+    }
+  ?>
 </head>
 
 <body class="sub_page">
@@ -94,12 +75,11 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  ">
-              <li class="nav-item ">
-                <a class="nav-link" href="index.html">Home </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fa fa-user" aria-hidden="true"></i> Login</a>
-              </li>
+              <?php
+                echo "<li class='nav-item '> <p class='nav-link'>".$_SESSION['username']."</p></li>";
+              ?>
+              <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+              </li> 
               <form class="form-inline">
                 <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
                   <i class="fa fa-search" aria-hidden="true"></i>
@@ -119,29 +99,63 @@
     <div class="container  ">
       <div class="heading_container heading_center">
         <h2>
-          註冊頁面
+          管理使用者
+          <a href="deleteUsers.php"><button>刪除介面</button></a>
+          <a href="editUsers.php"><button>編輯介面</button></a>
         </h2>
       </div>
       <div class="row">
-        <div class="col-md-6 ">
-          <div class="img-box">
-            <img src="images/about_img.jpg" alt="">
-          </div>
-        </div>
         <div class="col-md-6">
           <div class="detail-box">
-            <h3>
-              您的註冊資訊請完整輸入在下方
-            </h3>
-            <p>
-                <form method="POST" action="">
-                    名稱:<input type="text" maxlength="50" id="userInputName" name="userInputName"><br>
-                    帳號:<input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"><br>
-                    密碼:<input type="password" maxlength="50" id="userInputPassword" name="userInputPassword"><br>
-                    <button type="submit" name="loginBtn">登入頁面</button>
-                    <button type="submit" name="registerBtn">註冊</button>
-                </form>
-            </p>
+            <?php
+              // 設定每頁顯示的資料筆數
+              $records_per_page = 5;
+
+              // 獲取當前頁碼
+              if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+                  $current_page = (int)$_GET['page'];
+              } else {
+                  $current_page = 1;
+              }
+
+              // 計算起始擷取的資料索引
+              $start_index = ($current_page - 1) * $records_per_page;
+
+              // 準備 SQL 查詢，擷取指定範圍內的資料
+              $sql = "SELECT * FROM users LIMIT $start_index, $records_per_page";
+
+              // 執行查詢
+              $result = mysqli_query($conn, $sql);
+
+              // 檢查是否有資料
+              if (mysqli_num_rows($result) > 0) {
+                  // 逐行讀取資料並輸出
+                  while ($row = mysqli_fetch_assoc($result)) {
+                      echo "<h3>ID: " . $row["user_ID"] . " - Name: " . $row["username"] . "</h3><br>";
+                      // 根據您的資料表結構，輸出其他欄位
+                  }
+              } else {
+                  echo "0 筆結果";
+              }
+
+              // 釋放結果集
+              mysqli_free_result($result);
+
+              // 獲取總共的資料筆數
+              $total_records_sql = "SELECT COUNT(*) FROM users";
+              $total_records_result = mysqli_query($conn, $total_records_sql);
+              $total_records_row = mysqli_fetch_row($total_records_result);
+              $total_records = $total_records_row[0];
+
+              // 計算總頁數
+              $total_pages = ceil($total_records / $records_per_page);
+
+              // 顯示分頁連結
+              echo "<br>分頁";
+              for ($i = 1; $i <= $total_pages; $i++) {
+                  echo "<a href='?page=$i'>$i</a> ";
+              }
+            ?>
           </div>
         </div>
       </div>
@@ -164,7 +178,7 @@
               <a href="">
                 <i class="fa fa-map-marker" aria-hidden="true"></i>
                 <span>
-                  Location
+                  Arabia
                 </span>
               </a>
               <a href="">
@@ -202,7 +216,7 @@
               Info
             </h4>
             <p>
-              necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful
+              uwu
             </p>
           </div>
         </div>
@@ -217,17 +231,6 @@
               </a>
             </div>
           </div>
-        </div>
-        <div class="col-md-6 col-lg-3 info_col ">
-          <h4>
-            Subscribe
-          </h4>
-          <form action="#">
-            <input type="text" placeholder="Enter email" />
-            <button type="submit">
-              Subscribe
-            </button>
-          </form>
         </div>
       </div>
     </div>
