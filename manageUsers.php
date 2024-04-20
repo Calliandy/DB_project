@@ -31,22 +31,46 @@
   <link href="css/style.css" rel="stylesheet" />
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
-  <?php
-    include "db.php";
-    session_start();
-    $username = $_SESSION['username'];
-    $sql="SELECT * from users WHERE username='$username'";
-    $result = mysqli_query($conn,$sql);
-    $rowResult=mysqli_fetch_assoc($result);
-    if (!isset($_SESSION['username'])) {
-        echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
-        exit(); 
-    }
-    if ($rowResult['role']!="admin") {
-      echo "<script>alert('您不是管理員!'); window.location.href = 'login.php';</script>";
-      exit(); 
-    }
-  ?>
+    <?php
+        session_start();
+
+        // 處理越權查看以及錯誤登入
+        if (!isset($_SESSION['username'])) {
+            echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
+            exit();
+        } else if ($_SESSION['role'] != "admin") {
+            echo "<script>alert('無權訪問'); window.location.href = 'logout.php';</script>";
+            exit();
+        }
+        
+        // 處理管理員調出使用者清單
+        include "db_connect.php";
+        $stmt = $db->prepare("SELECT * FROM `users`");
+        $stmt->execute();
+        
+        $html = "<table><tr><th>ID</th><th>身分組</th><th>帳號</th><th>名稱";
+        while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $html .= "<tr>";
+            $html .= "<td>" . htmlspecialchars($user['account']) . "&nbsp&nbsp</td>";
+            $html .= "<td>" . htmlspecialchars($user['role']) . "&nbsp&nbsp</td>";
+            $html .= "<td>" . htmlspecialchars($user['username']) . "&nbsp&nbsp</td>";
+
+            $html .= "<td><form action=\"manageUsers.php\" method=\"post\" onsubmit=\"return confirmDelete();\"><input type=\"hidden\" name=\"deleteID\" value=\"".$user['user_ID']."\"><button type=\"submit\" value=\"deleteUser\" style=\"background-color: #FF0000; color: white;\">刪除使用者</button></form>"
+            ."</td>";
+            $html .= "</tr>";
+        }
+        $html .= "</table>";
+    ?>
+    <?php
+        if (($_SERVER['REQUEST_METHOD'] === "POST")&&(isset($_POST['deleteID']))){
+            include "db_connect.php";
+            $deleteUserID = $_POST['deleteID'];
+            $stmt = $db -> prepare("DELETE FROM `users` WHERE user_ID = :deleteID");
+            $stmt->bindParam(':deleteID', $deleteUserID);
+            $stmt->execute();
+            header("location: manageUsers.php");
+        }
+    ?>
 </head>
 
 <body class="sub_page">
@@ -100,62 +124,12 @@
       <div class="heading_container heading_center">
         <h2>
           管理使用者
-          <a href="deleteUsers.php"><button>刪除介面</button></a>
-          <a href="editUsers.php"><button>編輯介面</button></a>
         </h2>
       </div>
       <div class="row">
         <div class="col-md-6">
           <div class="detail-box">
-            <?php
-              // 設定每頁顯示的資料筆數
-              $records_per_page = 5;
-
-              // 獲取當前頁碼
-              if (isset($_GET['page']) && is_numeric($_GET['page'])) {
-                  $current_page = (int)$_GET['page'];
-              } else {
-                  $current_page = 1;
-              }
-
-              // 計算起始擷取的資料索引
-              $start_index = ($current_page - 1) * $records_per_page;
-
-              // 準備 SQL 查詢，擷取指定範圍內的資料
-              $sql = "SELECT * FROM users LIMIT $start_index, $records_per_page";
-
-              // 執行查詢
-              $result = mysqli_query($conn, $sql);
-
-              // 檢查是否有資料
-              if (mysqli_num_rows($result) > 0) {
-                  // 逐行讀取資料並輸出
-                  while ($row = mysqli_fetch_assoc($result)) {
-                      echo "<h3>ID: " . $row["user_ID"] . " - Name: " . $row["username"] . "</h3><br>";
-                      // 根據您的資料表結構，輸出其他欄位
-                  }
-              } else {
-                  echo "0 筆結果";
-              }
-
-              // 釋放結果集
-              mysqli_free_result($result);
-
-              // 獲取總共的資料筆數
-              $total_records_sql = "SELECT COUNT(*) FROM users";
-              $total_records_result = mysqli_query($conn, $total_records_sql);
-              $total_records_row = mysqli_fetch_row($total_records_result);
-              $total_records = $total_records_row[0];
-
-              // 計算總頁數
-              $total_pages = ceil($total_records / $records_per_page);
-
-              // 顯示分頁連結
-              echo "<br>分頁";
-              for ($i = 1; $i <= $total_pages; $i++) {
-                  echo "<a href='?page=$i'>$i</a> ";
-              }
-            ?>
+            <?php echo $html;?>
           </div>
         </div>
       </div>
@@ -265,7 +239,11 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
   </script>
   <!-- End Google Map -->
-
+  <script>
+        function confirmDelete() {
+            return confirm('請再次確認');
+        }
+  </script>
 </body>
 
 </html>

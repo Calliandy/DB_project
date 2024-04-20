@@ -49,11 +49,14 @@
                         if(($result-> num_rows==1)&& (password_verify($userPassword,$rowResult['password']))){
                             //登入成功
                             $_SESSION['username']=$rowResult['username'];
+                            $_SESSION['account']=$rowResult['account'];
+                            $_SESSION['user_ID']=$rowResult['user_ID'];
+                            $_SESSION['role']=$rowResult['role'];
                             if($rowResult['role']=="user"){
                               header("Location: menu.php");
                               exit();
                             }elseif($rowResult['role']=="admin"){
-                              header("Location: listUsers.php");
+                              header("Location: manageUsers.php");
                               exit();
                             }
                             

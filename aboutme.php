@@ -32,7 +32,7 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-    include "db.php";
+    include "db_connect.php";
     session_start();
   ?>
   <?php
@@ -40,7 +40,55 @@
         echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
                 exit(); 
     }
+    try {
+        $stmt = $db->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->bindParam(':username', $_SESSION['username']);
+        $stmt->execute();
+    
+        if ($stmt->rowCount() > 0) {
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $role = $user['role'];
+            $username = $user['username'];
+            $account = $user['account'];
+        } else {
+            //echo "No user found with that username.";
+        }
+    } catch (PDOException $e) {
+        die("Database error: " . $e->getMessage());
+    }
   ?>
+  <?php
+    if (($_SERVER['REQUEST_METHOD'] === "POST")&&(isset($_POST['update']))){ //update stands for the field name
+        $fieldToUpdate = $_POST['update'];
+        $updateValue = $_POST[$fieldToUpdate]?? '';
+        // echo "<script>alert('".$fieldToUpdate.$updateValue."');</script>";
+
+        if ($fieldToUpdate === 'password') { //處理更改密碼需要加密的部分
+            if (($_POST['password'] === $_POST['confirmPassword'])) {
+                $updateValue = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            } else {
+                echo "<script>alert('密碼與確認密碼不相同'); window.history.back();</script>";
+                exit();
+            }
+        }
+
+        try { //更新資料庫
+            $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+            $stmt->bindParam(':updateValue', $updateValue);
+            $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+            $stmt->execute();
+    
+            if ($stmt->rowCount() > 0) {
+                echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
+            } else {
+                echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
+            }
+        } catch (PDOException $e) {
+            die("Database error during update: " . $e->getMessage());
+        }
+    }
+
+    ?>
 </head>
 
 <body class="sub_page">
@@ -101,25 +149,35 @@
         </h2>
       </div>
       <div class="row">
-        <div class="col-md-6 ">
-          <div class="img-box">
-            <img src="images/about_img.jpg" alt="">
-          </div>
-        </div>
         <div class="col-md-6">
           <div class="detail-box">
-            <h3>
-                <?php
-                    $username=$_SESSION['username'];
-                    $sql="SELECT * from users WHERE username='$username'";
-                    $result = mysqli_query($conn,$sql);
-                    $user=mysqli_fetch_assoc($result);
-                    $account=$user['account'];
-                    echo "使用者名稱:   ". $username ."   <br>";
-                    echo "帳號     :   " . $account ."<br>";
-                    echo ""
-                ?>
-            </h3>
+          <table>
+            <tr>
+                <form action="aboutme.php" method="post" autocomplete="off">
+                    <th>使用者名稱</th>
+                    <td><input type="text" name="username" class="form-control border-0" value="<?php echo $username;?>" ></td>
+                    <td><button type="submit" name="update" value="username">更改</button></td>
+                </form>
+            </tr>
+            <tr>
+                <form action="aboutme.php" method="post" autocomplete="off">
+                    <th>帳號</th>
+                    <td><input type="text" name="username" class="form-control border-0" value="<?php echo $account;?>" ></td>
+                    <td><button type="submit" name="update" value="username">更改</button></td>
+                </form>
+            </tr>
+            <form action="aboutme.php" method="post" autocomplete="off">
+            <tr>
+                <th>密碼</th>
+                <td><input type="password" name="password" ></td>
+                <td rowspan="2" ><button type="submit" name="update" value="password">更改</button></td>
+            </tr>
+            <tr>
+                <th>再次確認密碼</th>
+                <td><input type="password" name="confirmPassword" ></td>
+            </tr>
+            </form>
+        </table>
             <p>
                 nihao
             </p>
