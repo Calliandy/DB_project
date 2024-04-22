@@ -56,8 +56,6 @@
     } catch (PDOException $e) {
         die("Database error: " . $e->getMessage());
     }
-  ?>
-  <?php
     if (($_SERVER['REQUEST_METHOD'] === "POST")&&(isset($_POST['update']))){ //update stands for the field name
         $fieldToUpdate = $_POST['update'];
         $updateValue = $_POST[$fieldToUpdate]?? '';
@@ -66,28 +64,74 @@
         if ($fieldToUpdate === 'password') { //處理更改密碼需要加密的部分
             if (($_POST['password'] === $_POST['confirmPassword'])) {
                 $updateValue = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                try { //更新資料庫
+                    $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                    $stmt->bindParam(':updateValue', $updateValue);
+                    $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                    $stmt->execute();
+            
+                    if ($stmt->rowCount() > 0) {
+                        echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
+                    } else {
+                        echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
+                    }
+                } catch (PDOException $e) {
+                    die("Database error during update: " . $e->getMessage());
+                }
             } else {
                 echo "<script>alert('密碼與確認密碼不相同'); window.history.back();</script>";
                 exit();
             }
         }
-
-        try { //更新資料庫
-            $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
-            $stmt->bindParam(':updateValue', $updateValue);
-            $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+        if ($fieldToUpdate === 'account') { //處理更改密碼需要加密的部分
+            $stmt = $db->prepare("SELECT * FROM users WHERE account = :account");
+            $stmt->bindParam(':account', $_POST['account']);
             $stmt->execute();
-    
-            if ($stmt->rowCount() > 0) {
-                $_SESSION['username']=$updateValue;
-                echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
-            } else {
-                echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
+            if($stmt -> rowCount()>0){
+                echo "<script>alert('帳號重複!'); window.history.back();</script>";  
+            }else{
+                try { //更新資料庫
+                    $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                    $stmt->bindParam(':updateValue', $updateValue);
+                    $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                    $stmt->execute();
+            
+                    if ($stmt->rowCount() > 0) {
+                        echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
+                    } else {
+                        echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
+                    }
+                } catch (PDOException $e) {
+                    die("Database error during update: " . $e->getMessage());
+                }
             }
-        } catch (PDOException $e) {
-            die("Database error during update: " . $e->getMessage());
         }
-    }
+
+        if ($fieldToUpdate === 'username') { //處理更改密碼需要加密的部分
+            $stmt = $db->prepare("SELECT * FROM users WHERE username = :username");
+            $stmt->bindParam(':username', $_POST['username']);
+            $stmt->execute();
+            if($stmt -> rowCount()>0){
+                echo "<script>alert('名稱重複!'); window.history.back();</script>";  
+            }else{
+                try { //更新資料庫
+                    $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                    $stmt->bindParam(':updateValue', $updateValue);
+                    $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                    $stmt->execute();
+            
+                    if ($stmt->rowCount() > 0) {
+                        $_SESSION['username']=$updateValue;
+                        echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
+                    } else {
+                        echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
+                    }
+                } catch (PDOException $e) {
+                    die("Database error during update: " . $e->getMessage());
+                }
+            }
+        }
+    }        
 
     ?>
 </head>
@@ -114,29 +158,32 @@
 
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class=""> </span>
-          </button>
+            </button>
 
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  ">
-              <li class="nav-item ">
-                <a class="nav-link" href="menu.php">菜單 </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link" href="goods.php">商品頁面 </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link" href="sellItems.php">刊登商品 </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
-              </li> 
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-              </form>
-            </ul>
-          </div>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav  ">
+                    <li class="nav-item ">
+                        <a class="nav-link" href="menu.php">菜單 </a>
+                    </li>
+                    <?php
+                        echo "<li class='nav-item '> <p class='nav-link'> 你好".$_SESSION['username']."</p></li>";
+                    ?>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="goods.php">商品頁面 </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="sellItems.php">刊登商品 </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+                    </li> 
+                    <form class="form-inline">
+                        <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </ul>
+            </div>
         </nav>
       </div>
     </header>
@@ -166,8 +213,8 @@
             <tr>
                 <form action="aboutme.php" method="post" autocomplete="off">
                     <th>帳號</th>
-                    <td><input type="text" name="username" class="form-control border-0" value="<?php echo $account;?>" ></td>
-                    <td><button type="submit" name="update" value="username">更改</button></td>
+                    <td><input type="text" name="account" class="form-control border-0" value="<?php echo $account;?>" ></td>
+                    <td><button type="submit" name="update" value="account">更改</button></td>
                 </form>
             </tr>
             <form action="aboutme.php" method="post" autocomplete="off">

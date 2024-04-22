@@ -68,7 +68,7 @@
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  ">
               <?php
-                echo "<li class='nav-item '> <p class='nav-link'>".$_SESSION['username']."</p></li>";
+                echo "<li class='nav-item '> <p class='nav-link'> 你好".$_SESSION['username']."</p></li>";
               ?>
               <li class="nav-item ">
                 <a class="nav-link" href="goods.php">商品頁面 </a>
