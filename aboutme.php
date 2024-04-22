@@ -79,6 +79,7 @@
             $stmt->execute();
     
             if ($stmt->rowCount() > 0) {
+                $_SESSION['username']=$updateValue;
                 echo "<script>alert('更新成功'); window.location.href = 'aboutme.php';</script>";
             } else {
                 echo "<script>alert('無變更導致的未更新'); window.history.back();</script>";
@@ -117,6 +118,9 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  ">
+              <li class="nav-item ">
+                <a class="nav-link" href="menu.php">菜單 </a>
+              </li>
               <li class="nav-item ">
                 <a class="nav-link" href="goods.php">商品頁面 </a>
               </li>

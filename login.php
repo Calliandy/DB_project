@@ -32,7 +32,7 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-            include "db.php";
+            include "db_connect.php";
             session_start();
             if($_SERVER["REQUEST_METHOD"]=="POST"){
                 if(isset($_POST['loginBtn'])){
@@ -43,19 +43,20 @@
                         $userPassword = $_POST['userInputPassword'];
                         $hashedPassword=password_hash($userPassword,PASSWORD_DEFAULT);
                         //執行登入相關操作
-                        $sql="SELECT * from users WHERE account='$account'";
-                        $result = mysqli_query($conn,$sql);
-                        $rowResult=mysqli_fetch_assoc($result);
-                        if(($result-> num_rows==1)&& (password_verify($userPassword,$rowResult['password']))){
+                        $stmt=$db->prepare("SELECT * FROM users WHERE account = :account");
+                        $stmt->bindParam(':account',$account);
+                        $stmt->execute();
+                        $user=$stmt->fetch(PDO::FETCH_ASSOC);
+                        if(($user)&& (password_verify($userPassword,$user['password']))){
                             //登入成功
-                            $_SESSION['username']=$rowResult['username'];
-                            $_SESSION['account']=$rowResult['account'];
-                            $_SESSION['user_ID']=$rowResult['user_ID'];
-                            $_SESSION['role']=$rowResult['role'];
-                            if($rowResult['role']=="user"){
+                            $_SESSION['username']=$user['username'];
+                            $_SESSION['account']=$user['account'];
+                            $_SESSION['user_ID']=$user['user_ID'];
+                            $_SESSION['role']=$user['role'];
+                            if($user['role']=="user"){
                               header("Location: menu.php");
                               exit();
-                            }elseif($rowResult['role']=="admin"){
+                            }elseif($user['role']=="admin"){
                               header("Location: manageUsers.php");
                               exit();
                             }
@@ -127,11 +128,6 @@
         </h2>
       </div>
       <div class="row">
-        <div class="col-md-6 ">
-          <div class="img-box">
-            <img src="images/about_img.jpg" alt="">
-          </div>
-        </div>
         <div class="col-md-6">
           <div class="detail-box">
             <h3>

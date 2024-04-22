@@ -32,7 +32,7 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-            include "db.php";
+            include "db_connect.php";
             session_start();
             if($_SERVER["REQUEST_METHOD"]=="POST"){
                 if(isset($_POST['loginBtn'])){
@@ -47,24 +47,26 @@
                         $userName = $_POST['userInputName'];
                         $userPassword = $_POST['userInputPassword'];
 
-                        $sql="SELECT * FROM users WHERE username = '$username'";
-                        $result = $conn ->query($sql);
-                        if($result -> num_rows > 0){
-                            echo "此使用者名稱已有人使用";
+                        $stmt=$db->prepare("SELECT * FROM users WHERE account = :account");
+                        $stmt->bindParam(':account',$account);
+                        $stmt->execute();
+                        if($stmt -> fetchColumn()>0){
+                            echo "<script><alert>此使用者名稱已有人使用</alert></script>";
                         }else{
                             $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
-                            $sql = "INSERT INTO `users`(`username`,`account`, `password`, `role`) VALUES ('$userName','$account','$hashedPassword','user')";
-                            if($conn->query($sql)===TRUE){
-                                header("Location: login.php");
-                                exit();
-                            } else {
-                                echo "註冊失敗: ".$conn->error;
-                            }
+                            $stmt = $db->prepare("INSERT INTO users (role, account, username, password) VALUES (:role, :account, :username, :password)");
+                            $role='user';
+                            $stmt->bindParam(':role', $role);
+                            $stmt->bindParam(':account', $account);
+                            $stmt->bindParam(':username', $userName);
+					                  $stmt->bindParam(':password', $hashedPassword);
+					                  $stmt->execute();
+                            header("Location: login.php");
+                            exit();
                         }
                     }
                 }
             }
-            $conn->close();
         ?>
 </head>
 

@@ -32,7 +32,7 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-    include "db.php";
+    include "db_connect.php";
     session_start();
     if (!isset($_SESSION['username'])) {
         echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";

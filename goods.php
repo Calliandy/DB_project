@@ -32,7 +32,7 @@
   <!-- responsive style -->
   <link href="css/responsive.css" rel="stylesheet" />
   <?php
-    include "db.php";
+    include "db_connect.php";
     session_start();
     if (!isset($_SESSION['username'])) {
         echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
@@ -121,42 +121,44 @@
               // 計算起始擷取的資料索引
               $start_index = ($current_page - 1) * $records_per_page;
 
-              // 準備 SQL 查詢，擷取指定範圍內的資料
-              $sql = "SELECT * FROM products LIMIT $start_index, $records_per_page";
-
-              // 執行查詢
-              $result = mysqli_query($conn, $sql);
-
-              // 檢查是否有資料
-              if (mysqli_num_rows($result) > 0) {
-                  // 逐行讀取資料並輸出
-                  while ($row = mysqli_fetch_assoc($result)) {
-                      echo "<p>ID: " . $row["product_ID"] . " - Name: " . $row["productName"] . "</p><br>";
-                      echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
-                      echo "<p>info: " . $row["productIntro"] . "</p><br>";
-                      echo "<img src='".$row["productCover"]."'>";
-                      // 根據您的資料表結構，輸出其他欄位
+              try {
+                  // 準備 SQL 查詢，擷取指定範圍內的資料
+                  $stmt = $db->prepare("SELECT * FROM products LIMIT :start_index, :records_per_page");
+                  $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
+                  $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
+                  
+                  // 執行查詢
+                  $stmt->execute();
+                  
+                  // 檢查是否有資料
+                  if ($stmt->rowCount() > 0) {
+                      // 逐行讀取資料並輸出
+                      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                          echo "<p>ID: " . $row["product_ID"] . " - Name: " . $row["productName"] . "</p><br>";
+                          echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
+                          echo "<p>info: " . $row["productIntro"] . "</p><br>";
+                          //echo "<img src='".$row["productCover"]."'>";
+                          // 根據您的資料表結構，輸出其他欄位
+                      }
+                  } else {
+                      echo "0 筆結果";
                   }
-              } else {
-                  echo "0 筆結果";
-              }
+                  
+                  // 獲取總共的資料筆數
+                  $total_records_stmt = $db->query("SELECT COUNT(*) FROM products");
+                  $total_records = $total_records_stmt->fetchColumn();
 
-              // 釋放結果集
-              mysqli_free_result($result);
+                  // 計算總頁數
+                  $total_pages = ceil($total_records / $records_per_page);
 
-              // 獲取總共的資料筆數
-              $total_records_sql = "SELECT COUNT(*) FROM users";
-              $total_records_result = mysqli_query($conn, $total_records_sql);
-              $total_records_row = mysqli_fetch_row($total_records_result);
-              $total_records = $total_records_row[0];
-
-              // 計算總頁數
-              $total_pages = ceil($total_records / $records_per_page);
-
-              // 顯示分頁連結
-              echo "<br>分頁";
-              for ($i = 1; $i <= $total_pages; $i++) {
-                  echo "<a href='?page=$i'>$i</a> ";
+                  // 顯示分頁連結
+                  echo "<br>分頁";
+                  for ($i = 1; $i <= $total_pages; $i++) {
+                      echo "<a href='?page=$i'>$i</a> ";
+                  }
+              } catch (PDOException $e) {
+                  // Handle any errors
+                  echo "Error: " . $e->getMessage();
               }
             ?>
           </div>
