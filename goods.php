@@ -97,71 +97,102 @@
 
   <!-- about section -->
 
-  <section class="about_section layout_padding">
-    <div class="container  ">
-      <div class="heading_container heading_center">
-        <h2>
-          商品列表
-        </h2>
-      </div>
-      <div class="row">
+    <section class="about_section layout_padding">
+        <div class="container  ">
+        <div class="heading_container heading_center">
+            <h2>
+                商品列表
+            </h2>
+            <form method="GET" action="goods.php">
+                <input name="keyword" placeholder="搜尋你有興趣的商品"></input>
+                <button type="submit" name="searchBtn">搜尋</button>
+                <button onclick="window.history.back()">取消搜尋</button>
+            </form>
+        </div>
+        <div class="row">
         <div class="col-md-6">
-          <div class="detail-box">
-            <?php
-              // 設定每頁顯示的資料筆數
-              $records_per_page = 5;
+            <div class="detail-box">
+                <?php
+                    // 設定每頁顯示的資料筆數
+                    $records_per_page = 5;
 
-              // 獲取當前頁碼
-              if (isset($_GET['page']) && is_numeric($_GET['page'])) {
-                  $current_page = (int)$_GET['page'];
-              } else {
-                  $current_page = 1;
-              }
+                    // 初始化搜尋條件
+                    $search_keyword = '';
 
-              // 計算起始擷取的資料索引
-              $start_index = ($current_page - 1) * $records_per_page;
+                    // 檢查是否有搜尋關鍵字
+                    if (isset($_GET['keyword'])) {
+                        $search_keyword = $_GET['keyword'];
+                    }
 
-              try {
-                  // 準備 SQL 查詢，擷取指定範圍內的資料
-                  $stmt = $db->prepare("SELECT * FROM products LIMIT :start_index, :records_per_page");
-                  $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
-                  $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
-                  
-                  // 執行查詢
-                  $stmt->execute();
-                  
-                  // 檢查是否有資料
-                  if ($stmt->rowCount() > 0) {
-                      // 逐行讀取資料並輸出
-                      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                          echo "<p>ID: " . $row["product_ID"] . " - Name: " . $row["productName"] . "</p><br>";
-                          echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
-                          echo "<p>info: " . $row["productIntro"] . "</p><br>";
-                          //echo "<img src='".$row["productCover"]."'>";
-                          // 根據您的資料表結構，輸出其他欄位
-                      }
-                  } else {
-                      echo "0 筆結果";
-                  }
-                  
-                  // 獲取總共的資料筆數
-                  $total_records_stmt = $db->query("SELECT COUNT(*) FROM products");
-                  $total_records = $total_records_stmt->fetchColumn();
+                    // 獲取當前頁碼
+                    if (isset($_GET['page']) && is_numeric($_GET['page'])) {
+                        $current_page = (int)$_GET['page'];
+                    } else {
+                        $current_page = 1;
+                    }
 
-                  // 計算總頁數
-                  $total_pages = ceil($total_records / $records_per_page);
+                    // 計算起始擷取的資料索引
+                    $start_index = ($current_page - 1) * $records_per_page;
 
-                  // 顯示分頁連結
-                  echo "<br>分頁";
-                  for ($i = 1; $i <= $total_pages; $i++) {
-                      echo "<a href='?page=$i'>$i</a> ";
-                  }
-              } catch (PDOException $e) {
-                  // Handle any errors
-                  echo "Error: " . $e->getMessage();
-              }
-            ?>
-          </div>
+                    try {
+                        // 準備 SQL 查詢，擷取指定範圍內的資料
+                        $sql = "SELECT * FROM products";
+                        
+                        // 添加搜尋條件
+                        if (!empty($search_keyword)) {
+                            $sql .= " WHERE productName LIKE :keyword";
+                        }
+                        
+                        $sql .= " LIMIT :start_index, :records_per_page";
+                        
+                        // 準備查詢
+                        $stmt = $db->prepare($sql);
+                        
+                        // 綁定參數
+                        $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
+                        $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
+                        
+                        // 添加搜尋參數
+                        if (!empty($search_keyword)) {
+                            $keyword = '%' . $search_keyword . '%';
+                            $stmt->bindParam(':keyword', $keyword, PDO::PARAM_STR);
+                        }
+                        
+                        // 執行查詢
+                        $stmt->execute();
+                        
+                        // 檢查是否有資料
+                        if ($stmt->rowCount() > 0) {
+                            // 逐行讀取資料並輸出
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<p>ID: " . $row["product_ID"] . " - Name: " . $row["productName"] . "</p><br>";
+                                echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
+                                echo "<p>info: " . $row["productIntro"] . "</p><br>";
+                                //echo "<img src='".$row["productCover"]."'>";
+                                // 根據您的資料表結構，輸出其他欄位
+                            }
+                        } else {
+                            echo "0 筆結果";
+                        }
+                        
+                        // 獲取總共的資料筆數
+                        $total_records_stmt = $db->query("SELECT COUNT(*) FROM products");
+                        $total_records = $total_records_stmt->fetchColumn();
+                        
+                        // 計算總頁數
+                        $total_pages = ceil($total_records / $records_per_page);
+
+                        // 顯示分頁連結
+                        echo "<br>分頁";
+                        for ($i = 1; $i <= $total_pages; $i++) {
+                            echo "<a href='?page=$i'>$i</a> ";
+                        }
+                    } catch (PDOException $e) {
+                        // Handle any errors
+                        echo "Error: " . $e->getMessage();
+                    } 
+                ?>
+            </div>
         </div>
       </div>
     </div>
@@ -171,105 +202,105 @@
 
   <!-- info section -->
 
-  <section class="info_section layout_padding2">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 col-lg-3 info_col">
-          <div class="info_contact">
-            <h4>
-              Address
-            </h4>
-            <div class="contact_link_box">
-              <a href="">
-                <i class="fa fa-map-marker" aria-hidden="true"></i>
-                <span>
-                  Arabia
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-phone" aria-hidden="true"></i>
-                <span>
-                  Call +01 1234567890
-                </span>
-              </a>
-              <a href="">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                <span>
-                  demo@gmail.com
-                </span>
-              </a>
+    <section class="info_section layout_padding2">
+        <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-lg-3 info_col">
+            <div class="info_contact">
+                <h4>
+                Address
+                </h4>
+                <div class="contact_link_box">
+                <a href="">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                    <span>
+                    Arabia
+                    </span>
+                </a>
+                <a href="">
+                    <i class="fa fa-phone" aria-hidden="true"></i>
+                    <span>
+                    Call +01 1234567890
+                    </span>
+                </a>
+                <a href="">
+                    <i class="fa fa-envelope" aria-hidden="true"></i>
+                    <span>
+                    demo@gmail.com
+                    </span>
+                </a>
+                </div>
             </div>
-          </div>
-          <div class="info_social">
-            <a href="">
-              <i class="fa fa-facebook" aria-hidden="true"></i>
-            </a>
-            <a href="">
-              <i class="fa fa-twitter" aria-hidden="true"></i>
-            </a>
-            <a href="">
-              <i class="fa fa-linkedin" aria-hidden="true"></i>
-            </a>
-            <a href="">
-              <i class="fa fa-instagram" aria-hidden="true"></i>
-            </a>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3 info_col">
-          <div class="info_detail">
-            <h4>
-              Info
-            </h4>
-            <p>
-              uwu
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-2 mx-auto info_col">
-          <div class="info_link_box">
-            <h4>
-              Links
-            </h4>
-            <div class="info_links">
-              <a class="active" href="index.html">
-                Home
-              </a>
+            <div class="info_social">
+                <a href="">
+                <i class="fa fa-facebook" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                <i class="fa fa-linkedin" aria-hidden="true"></i>
+                </a>
+                <a href="">
+                <i class="fa fa-instagram" aria-hidden="true"></i>
+                </a>
             </div>
-          </div>
+            </div>
+            <div class="col-md-6 col-lg-3 info_col">
+            <div class="info_detail">
+                <h4>
+                Info
+                </h4>
+                <p>
+                uwu
+                </p>
+            </div>
+            </div>
+            <div class="col-md-6 col-lg-2 mx-auto info_col">
+            <div class="info_link_box">
+                <h4>
+                Links
+                </h4>
+                <div class="info_links">
+                <a class="active" href="index.html">
+                    Home
+                </a>
+                </div>
+            </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+        </div>
+    </section>
 
-  <!-- end info section -->
+    <!-- end info section -->
 
-  <!-- footer section -->
-  <section class="footer_section">
-    <div class="container">
-      <p>
-        &copy; <span id="displayYear"></span> All Rights Reserved By
-        <a href="https://html.design/">Free Html Templates</a>
-      </p>
-    </div>
-  </section>
-  <!-- footer section -->
+    <!-- footer section -->
+    <section class="footer_section">
+        <div class="container">
+        <p>
+            &copy; <span id="displayYear"></span> All Rights Reserved By
+            <a href="https://html.design/">Free Html Templates</a>
+        </p>
+        </div>
+    </section>
+    <!-- footer section -->
 
-  <!-- jQery -->
-  <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
-  <!-- popper js -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
-  <!-- bootstrap js -->
-  <script type="text/javascript" src="js/bootstrap.js"></script>
-  <!-- owl slider -->
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
-  </script>
-  <!-- custom js -->
-  <script type="text/javascript" src="js/custom.js"></script>
-  <!-- Google Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
-  </script>
-  <!-- End Google Map -->
+    <!-- jQery -->
+    <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+    <!-- popper js -->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <!-- bootstrap js -->
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <!-- owl slider -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js">
+    </script>
+    <!-- custom js -->
+    <script type="text/javascript" src="js/custom.js"></script>
+    <!-- Google Map -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
+    </script>
+    <!-- End Google Map -->
 
 </body>
 

@@ -113,60 +113,60 @@
                 <p>價格:</p><input type="text" maxlength="50" id="productPrice" name="productPrice"><br>
                 <p>想賣幾個:</p><input type="text" maxlength="50" id="productAmount" name="productAmount"><br>
                 <p>商品介紹</p><input type="text" maxlength="255" id="productIntro" name="productIntro"><br>
-                <p>商品封面圖片(請貼網址):</p><input type="text" maxlength="255" id="productCover" name="productCover"><br>
+                <!--<p>商品封面圖片(請貼網址):</p><input type="text" maxlength="255" id="productCover" name="productCover"><br>-->
                 <button type="submit" name="uploadBtn">刊登</button>
                 <button type="reset" name="resetBtn">重設資訊</button>                
             </form>
             </p>
             <h3>
-            <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['uploadBtn'])) {
-        if (empty($_POST['productName']) || empty($_POST['productPrice']) || empty($_POST['productAmount']) || empty($_POST['productCover']) || empty($_POST['productIntro'])) {
-            echo "<script>alert('您的商品資訊不完整');</script>";
-        } else {
-            $productName = $_POST['productName'];
-            $productPrice = $_POST['productPrice'];
-            $productAmount = $_POST['productAmount'];
-            $productIntro = $_POST['productIntro'];
-            $productCover = $_POST['productCover'];
-            $sellerName = $_SESSION['username'];
-            
-            try {
-                // Prepare SQL statement
-                $stmt = $db->prepare("SELECT * FROM products WHERE sellerName = :sellerName");
-                $stmt->bindParam(':sellerName', $sellerName);
-                
-                // Execute the query
-                $stmt->execute();
-                
-                // Fetch the row
-                $product = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                // Prepare INSERT statement
-                $stmt = $db->prepare("INSERT INTO `products` (`productName`, `productPrice`, `productAmount`, `productIntro`, `productCover`, `sellerName`) VALUES (:productName, :productPrice, :productAmount, :productIntro, :productCover, :sellerName)");
-                
-                // Bind parameters
-                $stmt->bindParam(':productName', $productName);
-                $stmt->bindParam(':productPrice', $productPrice);
-                $stmt->bindParam(':productAmount', $productAmount);
-                $stmt->bindParam(':productIntro', $productIntro);
-                $stmt->bindParam(':productCover', $productCover);
-                $stmt->bindParam(':sellerName', $sellerName);
-                
-                // Execute the query
-                if ($stmt->execute()) {
-                    echo "商品" . $productName . "上傳成功!";
-                } else {
-                    echo "上傳失敗 :(";
+              <?php
+                if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                    if (isset($_POST['uploadBtn'])) {
+                        if (empty($_POST['productName']) || empty($_POST['productPrice']) || empty($_POST['productAmount']) || empty($_POST['productIntro'])) {
+                            echo "<script>alert('您的商品資訊不完整');</script>";
+                        } else {
+                            $productName = $_POST['productName'];
+                            $productPrice = $_POST['productPrice'];
+                            $productAmount = $_POST['productAmount'];
+                            $productIntro = $_POST['productIntro'];
+                            $productCover = $_POST['productCover'];
+                            $sellerName = $_SESSION['username'];
+                            
+                            try {
+                                // Prepare SQL statement
+                                $stmt = $db->prepare("SELECT * FROM products WHERE sellerName = :sellerName");
+                                $stmt->bindParam(':sellerName', $sellerName);
+                                
+                                // Execute the query
+                                $stmt->execute();
+                                
+                                // Fetch the row
+                                $product = $stmt->fetch(PDO::FETCH_ASSOC);
+                                
+                                // Prepare INSERT statement
+                                $stmt = $db->prepare("INSERT INTO `products` (`productName`, `productPrice`, `productAmount`, `productIntro`, `productCover`, `sellerName`) VALUES (:productName, :productPrice, :productAmount, :productIntro, :productCover, :sellerName)");
+                                
+                                // Bind parameters
+                                $stmt->bindParam(':productName', $productName);
+                                $stmt->bindParam(':productPrice', $productPrice);
+                                $stmt->bindParam(':productAmount', $productAmount);
+                                $stmt->bindParam(':productIntro', $productIntro);
+                                $stmt->bindParam(':productCover', $productCover);
+                                $stmt->bindParam(':sellerName', $sellerName);
+                                
+                                // Execute the query
+                                if ($stmt->execute()) {
+                                    echo "商品" . $productName . "上傳成功!";
+                                } else {
+                                    echo "上傳失敗 :(";
+                                }
+                            } catch (PDOException $e) {
+                                echo "Error: " . $e->getMessage();
+                            }
+                        }
+                    }
                 }
-            } catch (PDOException $e) {
-                echo "Error: " . $e->getMessage();
-            }
-        }
-    }
-}
-?>
+              ?>
             </h3>
           </div>
         </div>

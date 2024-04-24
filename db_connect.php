@@ -3,12 +3,12 @@
 
 // 數據庫連接設置
 $host = "localhost";
-$username = "root";
-$password = "wah";
+$dbusername = "root";
+$dbpassword = "wah";
 $dbname = "DEoil";
 
 try {
-    $db = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $db = new PDO("mysql:host=$host;dbname=$dbname", $dbusername, $dbpassword);
     // 設置PDO錯誤模式為異常
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
