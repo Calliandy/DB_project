@@ -43,57 +43,57 @@
 
 <body class="sub_page">
 
-  <div class="hero_area">
+    <div class="hero_area">
 
-    <div class="hero_bg_box">
-      <div class="bg_img_box">
-        <img src="images/hero-bg.png" alt="">
-      </div>
-    </div>
+        <div class="hero_bg_box">
+            <div class="bg_img_box">
+                <img src="images/hero-bg.png" alt="">
+            </div>
+        </div>
 
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="index.html">
-            <span>
-              丹尼斯 inc.
-            </span>
-          </a>
+        <!-- header section strats -->
+        <header class="header_section">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                <a class="navbar-brand" href="index.html">
+                    <span>
+                    丹尼斯 inc.
+                    </span>
+                </a>
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  ">
-              <?php
-                echo "<li class='nav-item '> <p class='nav-link'> 你好".$_SESSION['username']."</p></li>";
-              ?>
-              <li class="nav-item ">
-                <a class="nav-link" href="goods.php">商品頁面 </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link" href="sellItems.php">刊登商品 </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> 我的個人資訊</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
-              </li> 
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class=""> </span>
                 </button>
-              </form>
-            </ul>
-          </div>
-        </nav>
-      </div>
-    </header>
-    <!-- end header section -->
-  </div>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav  ">
+                    <li class="nav-item ">
+                        <a class="nav-link" href="goods.php">商品頁面 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="sellItems.php">刊登商品 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myProducts.php">我的商品 </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+                        </li> 
+                        <form class="form-inline">
+                            <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </ul>
+                </div>
+                </nav>
+            </div>
+        </header>
+        <!-- end header section -->
+    </div>
 
   <!-- about section -->
 
