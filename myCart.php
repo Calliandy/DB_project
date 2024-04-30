@@ -119,7 +119,6 @@
                 <div class="col-md-6">
                     <div class="detail-box">
                         <?php
-
                             // 設定每頁顯示的資料筆數
                             $records_per_page = 10;
 
@@ -132,22 +131,20 @@
                             }
 
                             // 獲取當前頁碼
-                            if (isset($_GET['page']) && is_numeric($_GET['page'])) {
-                                $current_page = (int)$_GET['page'];
-                            } else {
-                                $current_page = 1;
-                            }
+                            $current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 
                             // 計算起始擷取的資料索引
                             $start_index = ($current_page - 1) * $records_per_page;
 
                             try {
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT * FROM carts";
+                                $sql = "SELECT carts.*, products.productName 
+                                        FROM carts 
+                                        INNER JOIN products ON carts.productID = products.productID";
 
                                 // 添加搜尋條件
                                 if (!empty($search_keyword)) {
-                                    $sql .= " WHERE productName LIKE :keyword";
+                                    $sql .= " WHERE products.productName LIKE :keyword";
                                 }
 
                                 $sql .= " LIMIT :start_index, :records_per_page";
@@ -174,7 +171,7 @@
                                     while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
                                         echo "<td>" . htmlspecialchars($cart['productID']) . "&nbsp&nbsp</td>";
-                                        echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>";
+                                        echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>"; // 修改此處以顯示商品名稱
                                         echo "<td>" . htmlspecialchars($cart['amount']) . "&nbsp&nbsp</td>";
                                         echo "<td><form action=\"myCart.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
                                                 <input type=\"hidden\" name=\"deleteProduct\" value=\"" . $cart['cartID'] . "\">
@@ -188,7 +185,7 @@
                                 }
 
                                 // 獲取總共的資料筆數
-                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM users");
+                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM carts");
                                 $total_records = $total_records_stmt->fetchColumn();
 
                                 // 計算總頁數
@@ -205,7 +202,7 @@
                             }
 
                             // 處理刪除使用者的表單提交
-                            if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['deleteProduct']))) {
+                            if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['deleteProduct'])) {
                                 $deleteProductID = $_POST['deleteProduct'];
                                 $stmt = $db->prepare("DELETE FROM `carts` WHERE cartID = :deleteID");
                                 $stmt->bindParam(':deleteID', $deleteProductID);

@@ -18,20 +18,18 @@
     //     }
     // }
     if (isset($_SESSION['username'])) {
-        if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['productId']) && isset($_POST['amount']) && isset($_POST['productName']) && isset($_POST['productAmount'])) {
+        if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['productId']) && isset($_POST['amount']) && isset($_POST['productAmount'])) {
             $productId = $_POST['productId'];
             $amount = $_POST['amount'];
-            $productName = $_POST['productName'];
             $productAmount = $_POST['productAmount'];
 
             if ($amount > $productAmount) {
                 echo "購買數量超出庫存。";
             } else {
                 // 執行插入操作
-                $stmt = $db->prepare("INSERT INTO carts (buyerID, productID, productName, amount) VALUES (:userID, :productID, :productName, :amount)");
+                $stmt = $db->prepare("INSERT INTO carts (buyerID, productID, amount) VALUES (:userID, :productID, :amount)");
                 $stmt->bindParam(':userID', $_SESSION['userID']);
                 $stmt->bindParam(':productID', $productId);
-                $stmt->bindParam(':productName', $productName);
                 $stmt->bindParam(':amount', $amount);
                 
                 if ($stmt->execute()) {
