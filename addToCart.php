@@ -28,7 +28,7 @@
                 echo "購買數量超出庫存。";
             } else {
                 // 執行插入操作
-                $stmt = $db->prepare("INSERT INTO shoppingcart (buyerID, productID, productName, amount) VALUES (:userID, :productID, :productName, :amount)");
+                $stmt = $db->prepare("INSERT INTO carts (buyerID, productID, productName, amount) VALUES (:userID, :productID, :productName, :amount)");
                 $stmt->bindParam(':userID', $_SESSION['userID']);
                 $stmt->bindParam(':productID', $productId);
                 $stmt->bindParam(':productName', $productName);

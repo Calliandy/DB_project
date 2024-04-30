@@ -143,7 +143,7 @@
 
                             try {
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT * FROM shoppingcart";
+                                $sql = "SELECT * FROM carts";
 
                                 // 添加搜尋條件
                                 if (!empty($search_keyword)) {
@@ -207,7 +207,7 @@
                             // 處理刪除使用者的表單提交
                             if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['deleteProduct']))) {
                                 $deleteProductID = $_POST['deleteProduct'];
-                                $stmt = $db->prepare("DELETE FROM `shoppingcart` WHERE cartID = :deleteID");
+                                $stmt = $db->prepare("DELETE FROM `carts` WHERE cartID = :deleteID");
                                 $stmt->bindParam(':deleteID', $deleteProductID);
                                 $stmt->execute();
 
