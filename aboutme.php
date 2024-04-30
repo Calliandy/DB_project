@@ -41,8 +41,8 @@
                     exit(); 
         }
         try {
-            $stmt = $db->prepare("SELECT * FROM users WHERE user_ID = :user_ID");
-            $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+            $stmt = $db->prepare("SELECT * FROM users WHERE userID = :userID");
+            $stmt->bindParam(':userID', $_SESSION['userID']);
             $stmt->execute();
         
             if ($stmt->rowCount() > 0) {
@@ -65,9 +65,9 @@
                 if (($_POST['password'] === $_POST['confirmPassword'])) {
                     $updateValue = password_hash($_POST['password'], PASSWORD_DEFAULT);
                     try { //更新資料庫
-                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE userID = :userID");
                         $stmt->bindParam(':updateValue', $updateValue);
-                        $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                        $stmt->bindParam(':userID', $_SESSION['userID']);
                         $stmt->execute();
                 
                         if ($stmt->rowCount() > 0) {
@@ -91,9 +91,9 @@
                     echo "<script>alert('帳號重複!'); window.history.back();</script>";  
                 }else{
                     try { //更新資料庫
-                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE userID = :userID");
                         $stmt->bindParam(':updateValue', $updateValue);
-                        $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                        $stmt->bindParam(':userID', $_SESSION['userID']);
                         $stmt->execute();
                 
                         if ($stmt->rowCount() > 0) {
@@ -115,9 +115,9 @@
                     echo "<script>alert('名稱重複!'); window.history.back();</script>";  
                 }else{
                     try { //更新資料庫
-                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE user_ID = :user_ID");
+                        $stmt = $db->prepare("UPDATE users SET `$fieldToUpdate` = :updateValue WHERE userID = :userID");
                         $stmt->bindParam(':updateValue', $updateValue);
-                        $stmt->bindParam(':user_ID', $_SESSION['user_ID']);
+                        $stmt->bindParam(':userID', $_SESSION['userID']);
                         $stmt->execute();
                 
                         if ($stmt->rowCount() > 0) {

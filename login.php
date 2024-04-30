@@ -51,7 +51,7 @@
                         //登入成功
                         $_SESSION['username']=$user['username'];
                         $_SESSION['account']=$user['account'];
-                        $_SESSION['user_ID']=$user['user_ID'];
+                        $_SESSION['userID']=$user['userID'];
                         $_SESSION['role']=$user['role'];
                         if($user['role']=="user"){
                             header("Location: menu.php");

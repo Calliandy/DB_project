@@ -66,29 +66,32 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav  ">
-                <?php
-                    echo "<li class='nav-item '> <p class='nav-link'>你好，".$_SESSION['username']."</p></li>";
-                ?>
-                <li class="nav-item ">
-                    <a class="nav-link" href="goods.php">商品頁面 </a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link" href="sellItems.php">刊登商品 </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> 我的個人資訊</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
-                </li>
-                <form class="form-inline">
-                    <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                    <i class="fa fa-search" aria-hidden="true"></i>
-                    </button>
-                </form>
-                </ul>
-            </div>
+                    <ul class="navbar-nav  ">
+                        <li class="nav-item ">
+                            <a class="nav-link" href="goods.php">商品頁面 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="sellItems.php">刊登商品 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myProducts.php">我的商品 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myCart.php">我的購物車 </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+                        </li> 
+                        <form class="form-inline">
+                            <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </ul>
+                </div>
             </nav>
         </div>
         </header>

@@ -163,12 +163,12 @@
                                     echo "<table><tr><th>ID</th><th>帳號</th><th>身分組</th><th>名稱</th><th>操作</th></tr>";
                                     while ($user = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($user['user_ID']) . "&nbsp&nbsp</td>";
+                                        echo "<td>" . htmlspecialchars($user['userID']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($user['account']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($user['role']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($user['username']) . "&nbsp&nbsp</td>";
                                         echo "<td><form action=\"manageUsers.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
-                                                <input type=\"hidden\" name=\"deleteID\" value=\"" . $user['user_ID'] . "\">
+                                                <input type=\"hidden\" name=\"deleteID\" value=\"" . $user['userID'] . "\">
                                                 <button type=\"submit\" value=\"deleteUser\" style=\"background-color: #FF0000; color: white;\">刪除使用者</button>
                                                 </form></td>";
                                         echo "</tr>";
@@ -198,7 +198,7 @@
                             // 處理刪除使用者的表單提交
                             if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['deleteID']))) {
                                 $deleteUserID = $_POST['deleteID'];
-                                $stmt = $db->prepare("DELETE FROM `users` WHERE user_ID = :deleteID");
+                                $stmt = $db->prepare("DELETE FROM `users` WHERE userID = :deleteID");
                                 $stmt->bindParam(':deleteID', $deleteUserID);
                                 $stmt->execute();
 

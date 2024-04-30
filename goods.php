@@ -67,14 +67,14 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav  ">
-                    <li class="nav-item ">
-                        <a class="nav-link" href="goods.php">商品頁面 </a>
-                        </li>
                         <li class="nav-item ">
                             <a class="nav-link" href="sellItems.php">刊登商品 </a>
                         </li>
                         <li class="nav-item ">
                             <a class="nav-link" href="myProducts.php">我的商品 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myCart.php">我的購物車 </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
@@ -165,12 +165,12 @@
                         if ($stmt->rowCount() > 0) {
                             // 逐行讀取資料並輸出
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<p>ID: " . $row["product_ID"] . " - Name: " . $row["productName"] . "</p><br>";
-                                echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
-                                echo "<p>info: " . $row["productIntro"] . "</p><br>";
-                                //echo "<img src='".$row["productCover"]."'>";
-                                // 根據您的資料表結構，輸出其他欄位
+                                echo "<p>ID: " . $row["productID"] . "<br>名稱: " . $row["productName"];
+                                echo "<br>價格: " . $row["productPrice"] . "<br>數量: " . $row["productAmount"];
+                                echo "<br>介紹: " . $row["productIntro"] . "</p>";
+                                echo "<button onclick='addToCart(" . $row['productID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ")'>加入購物車</button>";
                             }
+                            
                         } else {
                             echo "0 筆結果";
                         }
@@ -301,6 +301,24 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
     </script>
     <!-- End Google Map -->
+    <script>
+        function addToCart(productId, productName, productAmount) {
+            var amount = prompt("請輸入購買數量:", "1");
+            if (amount != null && amount != "") {
+                // 使用 Ajax 發送請求
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "addToCart.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        alert(xhr.responseText);
+                    }
+                };
+                xhr.send("productId=" + productId + "&productName=" + productName + "&amount=" + amount + "&productAmount=" + productAmount);
+            }
+        }
+</script>
+
 
 </body>
 

@@ -32,92 +32,96 @@
     <!-- responsive style -->
     <link href="css/responsive.css" rel="stylesheet" />
     <?php
-        include "db_connect.php";
         session_start();
+        include "db_connect.php";
+        // 處理越權查看以及錯誤登入
         if (!isset($_SESSION['username'])) {
             echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
-            exit(); 
+            exit();
+        } else if ($_SESSION['role'] != "user") {
+            echo "<script>alert('權限錯誤'); window.location.href = 'logout.php';</script>";
+            exit();
         }
     ?>
 </head>
 
 <body class="sub_page">
 
-  <div class="hero_area">
+        <div class="hero_area">
 
-    <div class="hero_bg_box">
-        <div class="bg_img_box">
-            <img src="images/hero-bg.png" alt="">
-        </div>
-    </div>
-
-    <!-- header section strats -->
-    <header class="header_section">
-        <div class="container-fluid">
-            <nav class="navbar navbar-expand-lg custom_nav-container ">
-            <a class="navbar-brand" href="index.html">
-                <span>
-                丹尼斯 inc.
-                </span>
-            </a>
-
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class=""> </span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav  ">
-                    <li class="nav-item ">
-                        <a class="nav-link" href="goods.php">商品頁面 </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="sellItems.php">刊登商品 </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="myProducts.php">我的商品 </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="myCart.php">我的購物車 </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
-                    </li> 
-                    <form class="form-inline">
-                        <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                        </button>
-                    </form>
-                </ul>
+            <div class="hero_bg_box">
+            <div class="bg_img_box">
+                <img src="images/hero-bg.png" alt="">
             </div>
-            </nav>
+            </div>
+
+            <!-- header section strats -->
+            <header class="header_section">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                <a class="navbar-brand" href="index.html">
+                    <span>
+                    丹尼斯 inc.
+                    </span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class=""> </span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav  ">
+                        <li class="nav-item ">
+                            <a class="nav-link" href="goods.php">商品頁面 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="sellItems.php">刊登商品 </a>
+                        </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myProducts.php">我的商品 </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
+                        </li> 
+                        <form class="form-inline">
+                            <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </ul>
+                </div>
+                </nav>
+            </div>
+            </header>
+            <!-- end header section -->
         </div>
-        </header>
-        <!-- end header section -->
-    </div>
 
     <!-- about section -->
 
-    <section class="about_section layout_padding">
-        <div class="container  ">
+        <section class="about_section layout_padding">
+            <div class="container  ">
             <div class="heading_container heading_center">
                 <h2>
-                    我的商品
+                    管理使用者
                 </h2>
-                <form method="GET" action="myProducts.php">
-                    <input name="keyword" placeholder="搜尋你的商品Name"></input>
-                    <button type="submit" name="searchBtn">搜尋</button>
-                    <button onclick="window.history.back()">取消搜尋</button>
-                </form>
+                <h4>
+                    <form method="GET" action="myCart.php">
+                        <input name="keyword" placeholder="搜尋購物車內商品名稱"></input>
+                        <button type="submit" name="searchBtn">搜尋</button>
+                        <button onclick="window.history.back()">取消搜尋</button>
+                    </form>
+                </h4>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="detail-box">
                         <?php
+
                             // 設定每頁顯示的資料筆數
-                            $records_per_page = 5;
+                            $records_per_page = 10;
 
                             // 初始化搜尋條件
                             $search_keyword = '';
@@ -139,58 +143,54 @@
 
                             try {
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT * FROM products";
-                                $seller_name=$_SESSION['username'];
+                                $sql = "SELECT * FROM shoppingcart";
+
                                 // 添加搜尋條件
                                 if (!empty($search_keyword)) {
                                     $sql .= " WHERE productName LIKE :keyword";
                                 }
 
-                                if (!empty($seller_name)) {
-                                    if (!empty($search_keyword)) {
-                                        $sql .= " AND sellerName = :seller_name";
-                                    } else {
-                                        $sql .= " WHERE sellerName = :seller_name";
-                                    }
-                                }
-                                
                                 $sql .= " LIMIT :start_index, :records_per_page";
-                                
+
                                 // 準備查詢
                                 $stmt = $db->prepare($sql);
-                                
+
                                 // 綁定參數
-                                $stmt->bindParam(':seller_name', $seller_name);
                                 $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
                                 $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
-                                
+
                                 // 添加搜尋參數
                                 if (!empty($search_keyword)) {
                                     $keyword = '%' . $search_keyword . '%';
                                     $stmt->bindParam(':keyword', $keyword, PDO::PARAM_STR);
                                 }
-                                
-                                // 執行查詢
+
                                 $stmt->execute();
-                                
+
                                 // 檢查是否有資料
                                 if ($stmt->rowCount() > 0) {
-                                    // 逐行讀取資料並輸出
-                                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                        echo "<p>ID: " . $row["productID"] . " - Name: " . $row["productName"] . "</p><br>";
-                                        echo "<p>Price: " . $row["productPrice"] . " - Amount: " . $row["productAmount"] . "</p><br>";
-                                        echo "<p>info: " . $row["productIntro"] . "</p><br>";
-                                        //echo "<img src='".$row["productCover"]."'>";
-                                        // 根據您的資料表結構，輸出其他欄位
+                                    // 輸出資料表格
+                                    echo "<table><tr><th>商品ID</th><th>商品名</th><th>數量</th><th>操作</th></tr>";
+                                    while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                        echo "<tr>";
+                                        echo "<td>" . htmlspecialchars($cart['productID']) . "&nbsp&nbsp</td>";
+                                        echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>";
+                                        echo "<td>" . htmlspecialchars($cart['amount']) . "&nbsp&nbsp</td>";
+                                        echo "<td><form action=\"myCart.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
+                                                <input type=\"hidden\" name=\"deleteProduct\" value=\"" . $cart['cartID'] . "\">
+                                                <button type=\"submit\" value=\"deleteProduct\" style=\"background-color: #FF0000; color: white;\">刪除此商品</button>
+                                                </form></td>";
+                                        echo "</tr>";
                                     }
+                                    echo "</table>";
                                 } else {
                                     echo "0 筆結果";
                                 }
-                                
+
                                 // 獲取總共的資料筆數
-                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM products");
+                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM users");
                                 $total_records = $total_records_stmt->fetchColumn();
-                                
+
                                 // 計算總頁數
                                 $total_pages = ceil($total_records / $records_per_page);
 
@@ -200,15 +200,25 @@
                                     echo "<a href='?page=$i'>$i</a> ";
                                 }
                             } catch (PDOException $e) {
-                                // Handle any errors
+                                // 處理錯誤
                                 echo "Error: " . $e->getMessage();
-                            } 
+                            }
+
+                            // 處理刪除使用者的表單提交
+                            if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['deleteProduct']))) {
+                                $deleteProductID = $_POST['deleteProduct'];
+                                $stmt = $db->prepare("DELETE FROM `shoppingcart` WHERE cartID = :deleteID");
+                                $stmt->bindParam(':deleteID', $deleteProductID);
+                                $stmt->execute();
+
+                                echo "<script>window.location.href = 'myCart.php';</script>";
+                            }
                         ?>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+            </div>
+        </section>
 
     <!-- end about section -->
 
@@ -313,7 +323,11 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
     </script>
     <!-- End Google Map -->
-
+    <script>
+            function confirmDelete() {
+                return confirm('請再次確認');
+            }
+    </script>
 </body>
 
 </html>

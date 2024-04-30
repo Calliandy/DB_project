@@ -4,7 +4,7 @@
 // 數據庫連接設置
 $host = "localhost";
 $dbusername = "root";
-$dbpassword = "wah";
+$dbpassword = "root";
 $dbname = "DEoil";
 
 try {
