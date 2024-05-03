@@ -105,113 +105,66 @@
             <div class="container  ">
             <div class="heading_container heading_center">
                 <h2>
-                    管理使用者
-                    <a href='check.php'><button>全部商品結帳</button></a>
+                    結帳頁面
                 </h2>
-                <h4>
-                    <form method="GET" action="myCart.php">
-                        <input name="keyword" placeholder="搜尋購物車內商品名稱"></input>
-                        <button type="submit" name="searchBtn">搜尋</button>
-                        <button onclick="window.history.back()">取消搜尋</button>
-                    </form>
-                </h4>
             </div>
             <div class="row">
                 <div class="col-md-6">
                     <div class="detail-box">
                         <?php
-                            // 設定每頁顯示的資料筆數
-                            $records_per_page = 10;
-
-                            // 初始化搜尋條件
-                            $search_keyword = '';
-
-                            // 檢查是否有搜尋關鍵字
-                            if (isset($_GET['keyword'])) {
-                                $search_keyword = $_GET['keyword'];
-                            }
-
-                            // 獲取當前頁碼
-                            $current_page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
-
-                            // 計算起始擷取的資料索引
-                            $start_index = ($current_page - 1) * $records_per_page;
-
                             try {
-                                // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT carts.*, products.productName 
+                                // 準備 SQL 查詢，擷取資料
+                                $sql = "SELECT products.productName, carts.amount, products.productPrice
                                         FROM carts 
                                         INNER JOIN products ON carts.productID = products.productID";
 
-                                // 添加搜尋條件
-                                if (!empty($search_keyword)) {
-                                    $sql .= " WHERE products.productName LIKE :keyword";
-                                }
-
-                                $sql .= " LIMIT :start_index, :records_per_page";
-
                                 // 準備查詢
-                                $stmt = $db->prepare($sql);
+                                $stmt = $db->query($sql);
 
-                                // 綁定參數
-                                $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
-                                $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
+                                // 初始化總價格
+                                $totalPrice = 0;
 
-                                // 添加搜尋參數
-                                if (!empty($search_keyword)) {
-                                    $keyword = '%' . $search_keyword . '%';
-                                    $stmt->bindParam(':keyword', $keyword, PDO::PARAM_STR);
+                                // 輸出表格標題
+                                echo "<table><tr><th>產品名稱</th><th>數量</th><th>單價</th></tr>";
+
+                                // 處理每一行資料
+                                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                    $productName = htmlspecialchars($row['productName']);
+                                    $productAmount = htmlspecialchars($row['amount']);
+                                    $productPrice = htmlspecialchars($row['productPrice']);
+                                    $productTotalPrice = $row['amount'] * $row['productPrice'];
+
+                                    // 輸出該產品的資料;
+                                    echo "<tr>";
+                                    echo "<td>$productName</td>";
+                                    echo "<td>&nbsp;&nbsp;$productAmount&nbsp;&nbsp;</td>";
+                                    echo "<td>&nbsp;&nbsp;$productPrice&nbsp;&nbsp;</td>";
+                                    echo "</tr>";
+
+                                    // 加總價格
+                                    $totalPrice += $productTotalPrice;
+
+                                    // 添加分隔行
+                                    echo "<tr><td colspan='3'></td></tr>";
                                 }
 
-                                $stmt->execute();
+                                // 輸出總價格
+                                echo "</table>";
+                                echo "<br>商品總價格: $" . $totalPrice;
 
-                                // 檢查是否有資料
-                                if ($stmt->rowCount() > 0) {
-                                    // 輸出資料表格
-                                    echo "<table><tr><th>商品ID</th><th>商品名</th><th>數量</th><th>操作</th></tr>";
-                                    while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                        echo "<tr>";
-                                        echo "<td>" . htmlspecialchars($cart['productID']) . "&nbsp&nbsp</td>";
-                                        echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>"; // 修改此處以顯示商品名稱
-                                        echo "<td>" . htmlspecialchars($cart['amount']) . "&nbsp&nbsp</td>";
-                                        echo "<td><form action=\"myCart.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
-                                                <input type=\"hidden\" name=\"deleteProduct\" value=\"" . $cart['cartID'] . "\">
-                                                <button type=\"submit\" value=\"deleteProduct\" style=\"background-color: #FF0000; color: white;\">刪除此商品</button>
-                                                </form></td>";
-                                        echo "</tr>";
-                                    }
-                                    echo "</table>";
-                                } else {
-                                    echo "0 筆結果";
-                                }
+                                // 輸出結帳按鈕
+                                echo "<form action='checkout.php' method='post'>";
+                                echo "<input type='hidden' name='totalPrice' value='" . $totalPrice . "'>";
+                                echo "<input type='submit' name='checkout' value='結帳'>";
+                                echo "</form>";
 
-                                // 獲取總共的資料筆數
-                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM carts");
-                                $total_records = $total_records_stmt->fetchColumn();
 
-                                // 計算總頁數
-                                $total_pages = ceil($total_records / $records_per_page);
-
-                                // 顯示分頁連結
-                                echo "<br>分頁";
-                                for ($i = 1; $i <= $total_pages; $i++) {
-                                    echo "<a href='?page=$i'>$i</a> ";
-                                }
                             } catch (PDOException $e) {
                                 // 處理錯誤
                                 echo "Error: " . $e->getMessage();
-                            }
-
-                            // 處理刪除購物車內容的表單提交
-                            if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['deleteProduct'])) {
-                                $deleteProductID = $_POST['deleteProduct'];
-                                $stmt = $db->prepare("DELETE FROM `carts` WHERE cartID = :deleteID");
-                                $stmt->bindParam(':deleteID', $deleteProductID);
-                                $stmt->execute();
-
-                                echo "<script>window.location.href = 'myCart.php';</script>";
-                            }
+                            }    
                         ?>
+
                     </div>
                 </div>
             </div>

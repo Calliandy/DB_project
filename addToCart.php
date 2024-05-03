@@ -2,21 +2,6 @@
     session_start();
     include "db_connect.php";
 
-    // if ($_SERVER['REQUEST_METHOD'] === "POST"){
-    //     echo "POST";
-    //     if (isset($_POST['productId'])){
-    //         echo "PID";
-    //         if(isset($_POST['amount'])){
-    //             echo "PA";
-    //         }
-    //         if(isset($_POST['productName'])){
-    //             echo "PNAME";
-    //         }
-    //         if(isset($_POST['productAmount'])){
-    //             echo "PAM";
-    //         }
-    //     }
-    // }
     if (isset($_SESSION['username'])) {
         if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['productId']) && isset($_POST['amount']) && isset($_POST['productAmount'])) {
             $productId = $_POST['productId'];
