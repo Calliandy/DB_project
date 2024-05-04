@@ -80,6 +80,9 @@
                         <li class="nav-item ">
                             <a class="nav-link" href="myProducts.php">我的商品 </a>
                         </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myCart.php">我的購物車 </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
                         </li>
@@ -105,7 +108,7 @@
             <div class="container  ">
             <div class="heading_container heading_center">
                 <h2>
-                    管理使用者
+                    管理我的購物車
                     <a href='check.php'><button>全部商品結帳</button></a>
                 </h2>
                 <h4>
@@ -139,10 +142,9 @@
 
                             try {
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT carts.*, products.productName 
+                                $sql = "SELECT carts.*, products.productName, products.productPrice 
                                         FROM carts 
                                         INNER JOIN products ON carts.PID = products.PID";
-
                                 // 添加搜尋條件
                                 if (!empty($search_keyword)) {
                                     $sql .= " WHERE products.productName LIKE :keyword";
@@ -168,12 +170,19 @@
                                 // 檢查是否有資料
                                 if ($stmt->rowCount() > 0) {
                                     // 輸出資料表格
-                                    echo "<table><tr><th>商品ID</th><th>商品名</th><th>數量</th><th>操作</th></tr>";
+                                    echo "<table><tr><th>商品ID</th><th>商品名</th><th>單價</th><th>數量</th><th>操作</th></tr>";
                                     while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
                                         echo "<td>" . htmlspecialchars($cart['PID']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>"; // 修改此處以顯示商品名稱
-                                        echo "<td>" . htmlspecialchars($cart['amount']) . "&nbsp&nbsp</td>";
+                                        echo "<td>" . htmlspecialchars($cart['productPrice']) . "&nbsp&nbsp</td>";
+                                        echo "<td>
+                                                <form action=\"myCart.php\" method=\"post\" onsubmit=\"return confirmUpdate();\">
+                                                    <input type=\"hidden\" name=\"cartID\" value=\"" . $cart['cartID'] . "\">
+                                                    <input type=\"number\" name=\"newAmount\" value=\"" . $cart['amount'] . "\" min=\"1\">
+                                                    <button type=\"submit\" name=\"updateAmount\" style=\"background-color: #008000; color: white;\">更改數量</button>
+                                                </form>
+                                            </td>";
                                         echo "<td><form action=\"myCart.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
                                                 <input type=\"hidden\" name=\"deleteProduct\" value=\"" . $cart['cartID'] . "\">
                                                 <button type=\"submit\" value=\"deleteProduct\" style=\"background-color: #FF0000; color: white;\">刪除此商品</button>
@@ -201,6 +210,21 @@
                                 // 處理錯誤
                                 echo "Error: " . $e->getMessage();
                             }
+
+                            // 處理更新購物車內容數量的表單提交
+                            if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['updateAmount'])) {
+                                $cartID = $_POST['cartID'];
+                                $newAmount = $_POST['newAmount'];
+                                
+                                // 更新 carts 資料表中的數量
+                                $stmt = $db->prepare("UPDATE `carts` SET amount = :newAmount WHERE cartID = :cartID");
+                                $stmt->bindParam(':newAmount', $newAmount);
+                                $stmt->bindParam(':cartID', $cartID);
+                                $stmt->execute();
+
+                                echo "<script>window.location.href = 'myCart.php';</script>";
+                            }
+
 
                             // 處理刪除購物車內容的表單提交
                             if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['deleteProduct'])) {
@@ -322,7 +346,7 @@
     </script>
     <!-- End Google Map -->
     <script>
-            function confirmDelete() {
+            function confirmUpdate() {
                 return confirm('請再次確認');
             }
     </script>

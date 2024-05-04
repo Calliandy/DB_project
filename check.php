@@ -114,7 +114,7 @@
                         <?php
                             try {
                                 // 準備 SQL 查詢，擷取資料
-                                $sql = "SELECT products.productName, carts.amount, products.productPrice
+                                $sql = "SELECT products.PID, products.productName, carts.amount, products.productPrice
                                         FROM carts 
                                         INNER JOIN products ON carts.PID = products.PID";
 
@@ -125,7 +125,7 @@
                                 $totalPrice = 0;
 
                                 // 輸出表格標題
-                                echo "<table><tr><th>產品名稱</th><th>數量</th><th>單價</th></tr>";
+                                echo "<table><tr><th>產品名稱</th><th>數量</th><th>單價</th><th>總價</th><th>操作</th></tr>";
 
                                 // 處理每一行資料
                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -133,38 +133,37 @@
                                     $productAmount = htmlspecialchars($row['amount']);
                                     $productPrice = htmlspecialchars($row['productPrice']);
                                     $productTotalPrice = $row['amount'] * $row['productPrice'];
+                                    $productID = $row['PID'];
 
-                                    // 輸出該產品的資料;
+                                    // 輸出該產品的資料
                                     echo "<tr>";
                                     echo "<td>$productName</td>";
                                     echo "<td>&nbsp;&nbsp;$productAmount&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productPrice&nbsp;&nbsp;</td>";
+                                    echo "<td>&nbsp;&nbsp;$productTotalPrice&nbsp;&nbsp;</td>";
+                                    echo "<td><form action='checkout.php' method='post'>";
+                                    echo "<input type='hidden' name='productID' value='$productID'>";
+                                    echo "<input type='hidden' name='productTotalPrice' value='$productTotalPrice'>";
+                                    echo "<input type='submit' name='checkout' value='結帳'>";
+                                    echo "</form></td>";
                                     echo "</tr>";
 
                                     // 加總價格
                                     $totalPrice += $productTotalPrice;
 
                                     // 添加分隔行
-                                    echo "<tr><td colspan='3'></td></tr>";
+                                    echo "<tr><td colspan='4'></td></tr>";
                                 }
 
                                 // 輸出總價格
                                 echo "</table>";
                                 echo "<br>商品總價格: $" . $totalPrice;
 
-                                // 輸出結帳按鈕
-                                echo "<form action='checkout.php' method='post'>";
-                                echo "<input type='hidden' name='totalPrice' value='" . $totalPrice . "'>";
-                                echo "<input type='submit' name='checkout' value='結帳'>";
-                                echo "</form>";
-
-
                             } catch (PDOException $e) {
                                 // 處理錯誤
                                 echo "Error: " . $e->getMessage();
-                            }    
+                            }
                         ?>
-
                     </div>
                 </div>
             </div>
@@ -274,11 +273,6 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap">
     </script>
     <!-- End Google Map -->
-    <script>
-            function confirmDelete() {
-                return confirm('請再次確認');
-            }
-    </script>
 </body>
 
 </html>

@@ -76,6 +76,9 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="myProducts.php">我的商品 </a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="myCart.php">我的購物車 </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
                     </li>

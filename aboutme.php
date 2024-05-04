@@ -185,7 +185,7 @@
                             <i class="fa fa-search" aria-hidden="true"></i>
                             </button>
                         </form>
-                    </ul>
+                    </ul>                
                 </div>
             </nav>
         </div>

@@ -68,6 +68,9 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav  ">
                         <li class="nav-item ">
+                            <a class="nav-link" href="goods.php">商品頁面 </a>
+                        </li>
+                        <li class="nav-item ">
                             <a class="nav-link" href="sellItems.php">刊登商品 </a>
                         </li>
                         <li class="nav-item ">
@@ -164,11 +167,12 @@
                         // 檢查是否有資料
                         if ($stmt->rowCount() > 0) {
                             // 逐行讀取資料並輸出
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<p>ID: " . $row["PID"] . "<br>名稱: " . $row["productName"];
-                                echo "<br>價格: " . $row["productPrice"] . "<br>數量: " . $row["productAmount"];
-                                echo "<br>介紹: " . $row["productIntro"] . "</p>";
-                                echo "<button onclick='addToCart(" . $row['PID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ")'>加入購物車</button>";
+                            while ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                echo "<p>ID: " . $product["PID"] . "<br>名稱: " . $product["productName"];
+                                echo "<br>價格: " . $product["productPrice"] . "<br>數量: " . $product["productAmount"];
+                                echo "<br>介紹: " . $product["productIntro"] . "</p>";
+                                echo "<button onclick='addToCart(" . $product['PID'] . ", \"" . $product['productName'] . "\", " . $product['productAmount'] . ", \"" . $product['sellerID'] . "\")'>加入購物車</button>";
+
                             }
                             
                         } else {
@@ -302,22 +306,30 @@
     </script>
     <!-- End Google Map -->
     <script>
-        function addToCart(productId, productName, productAmount) {
-            var amount = prompt("請輸入購買數量:", "1");
-            if (amount != null && amount != "") {
-                // 使用 Ajax 發送請求
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "addToCart.php", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && xhr.status == 200) {
-                        alert(xhr.responseText);
-                    }
-                };
-                xhr.send("productId=" + productId + "&productName=" + productName + "&amount=" + amount + "&productAmount=" + productAmount);
-            }
+    function addToCart(productId, productName, productAmount, sellerID) {
+        // 檢查是否為目前使用者的商品
+        //alert(sellerID);
+        if (sellerID === "<?php echo $_SESSION['userID']; ?>") {
+            alert("您無法將自己的商品加入購物車。");
+            return;
         }
+
+        var amount = prompt("請輸入購買數量:", "1");
+        if (amount != null && amount != "") {
+            // 使用 Ajax 發送請求
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "addToCart.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);
+                }
+            };
+            xhr.send("productId=" + productId + "&productName=" + productName + "&amount=" + amount + "&productAmount=" + productAmount);
+        }
+    }
 </script>
+
 
 
 </body>
