@@ -54,12 +54,14 @@
                         echo "<script><alert>此使用者名稱已有人使用</alert></script>";
                     }else{
                         $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
-                        $stmt = $db->prepare("INSERT INTO users (role, account, username, password) VALUES (:role, :account, :username, :password)");
+                        $stmt = $db->prepare("INSERT INTO users (role, account, username, password, balance) VALUES (:role, :account, :username, :password, :balance)");
                         $role='user';
+                        $balance=1000;
                         $stmt->bindParam(':role', $role);
                         $stmt->bindParam(':account', $account);
                         $stmt->bindParam(':username', $userName);
                         $stmt->bindParam(':password', $hashedPassword);
+                        $stmt->bindParam(':balance', $balance, PDO::PARAM_INT);
                         $stmt->execute();
                         header("Location: login.php");
                         exit();
