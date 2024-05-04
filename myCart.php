@@ -83,8 +83,29 @@
                         <li class="nav-item ">
                             <a class="nav-link" href="myCart.php">我的購物車 </a>
                         </li>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="myDetail.php">我的購物明細 </a>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
+                            <a class="nav-link" href="aboutme.php"> 
+                                <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊
+                            </a>
+                        </li>
+                        <li class="nav-item ">
+                            <?php
+                                // 在這裡顯示使用者的餘額
+                                // 假設$_SESSION['userID']儲存了當前使用者的ID
+                                $userID = $_SESSION['userID'];
+
+                                // 查詢用戶的餘額
+                                $balance_stmt = $db->prepare("SELECT balance FROM users WHERE userID = :userID");
+                                $balance_stmt->bindParam(':userID', $userID);
+                                $balance_stmt->execute();
+                                $balance = $balance_stmt->fetchColumn();
+
+                                // 顯示用戶餘額
+                                echo '<a class="nav-link" href="topUp.php">餘額：' . $balance . '(點擊前往儲值頁面)</a>';
+                            ?>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
@@ -215,6 +236,23 @@
                             if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['updateAmount'])) {
                                 $cartID = $_POST['cartID'];
                                 $newAmount = $_POST['newAmount'];
+                                
+                                // 檢查購買數量是否超過商品庫存數量
+                                $stmt = $db->prepare("SELECT carts.amount, products.productAmount 
+                                                    FROM carts 
+                                                    INNER JOIN products ON carts.PID = products.PID 
+                                                    WHERE carts.cartID = :cartID");
+                                $stmt->bindParam(':cartID', $cartID);
+                                $stmt->execute();
+                                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                                $currentAmount = $result['amount'];
+                                $productAmount = $result['productAmount'];
+
+                                // 如果購買數量超過商品庫存數量，顯示錯誤訊息
+                                if ($newAmount > $productAmount) {
+                                    echo "<script>alert('購買數量超過商品庫存數量，請重新設定數量。'); window.location.href = 'myCart.php';</script>";
+                                    exit(); // 停止腳本執行
+                                }
                                 
                                 // 更新 carts 資料表中的數量
                                 $stmt = $db->prepare("UPDATE `carts` SET amount = :newAmount WHERE cartID = :cartID");

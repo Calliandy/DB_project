@@ -79,8 +79,29 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="myCart.php">我的購物車 </a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="myDetail.php">我的購物明細 </a>
+                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="aboutme.php"> <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊</a>
+                        <a class="nav-link" href="aboutme.php"> 
+                            <i class="fa fa-user" aria-hidden="true"></i> <?php echo $_SESSION['username'];?>的個人資訊
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <?php
+                            // 在這裡顯示使用者的餘額
+                            // 假設$_SESSION['userID']儲存了當前使用者的ID
+                            $userID = $_SESSION['userID'];
+
+                            // 查詢用戶的餘額
+                            $balance_stmt = $db->prepare("SELECT balance FROM users WHERE userID = :userID");
+                            $balance_stmt->bindParam(':userID', $userID);
+                            $balance_stmt->execute();
+                            $balance = $balance_stmt->fetchColumn();
+
+                            // 顯示用戶餘額
+                            echo '<a class="nav-link" href="topUp.php">餘額：' . $balance . '(點擊前往儲值頁面)</a>';
+                        ?>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="logout.php"> <i class="fa fa-user" aria-hidden="true"></i> 登出</a>
