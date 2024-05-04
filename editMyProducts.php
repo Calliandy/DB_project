@@ -141,17 +141,17 @@
                         try {
                             // 準備 SQL 查詢，擷取指定範圍內的資料
                             $sql = "SELECT * FROM products";
-                            $seller_name = $_SESSION['username'];
+                            $sellerID = $_SESSION['userID'];
                             // 添加搜尋條件
                             if (!empty($search_keyword)) {
                                 $sql .= " WHERE productName LIKE :keyword";
                             }
 
-                            if (!empty($seller_name)) {
+                            if (!empty($sellerID)) {
                                 if (!empty($search_keyword)) {
-                                    $sql .= " AND sellerName = :seller_name";
+                                    $sql .= " AND sellerID = :sellerID";
                                 } else {
-                                    $sql .= " WHERE sellerName = :seller_name";
+                                    $sql .= " WHERE sellerID = :sellerID";
                                 }
                             }
 
@@ -161,7 +161,7 @@
                             $stmt = $db->prepare($sql);
 
                             // 綁定參數
-                            $stmt->bindParam(':seller_name', $seller_name);
+                            $stmt->bindParam(':sellerID', $sellerID);
                             $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
                             $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
 
@@ -184,7 +184,7 @@
                                     echo "商品價格:<input type='text' name='productPrice' value='" . $row["productPrice"] . "'><br>";
                                     echo "商品數量:<input type='text' name='productAmount' value='" . $row["productAmount"] . "'><br>";
                                     echo "商品介紹:<input type='text' name='productIntro' value='" . $row["productIntro"] . "'><br>";
-                                    echo "<input type='hidden' name='productID' value='" . $row["productID"] . "'>";
+                                    echo "<input type='hidden' name='productID' value='" . $row["PID"] . "'>";
                                     echo "<button type='submit' name='editProduct'>編輯商品</button>";
                                     echo "</form>";
                                     echo "</div>";
@@ -220,7 +220,7 @@
 
                             // Update the product with new values
                             try {
-                                $sql = "UPDATE products SET productName = :productName, productPrice = :productPrice, productAmount = :productAmount, productIntro = :productIntro WHERE productID = :productID";
+                                $sql = "UPDATE products SET productName = :productName, productPrice = :productPrice, productAmount = :productAmount, productIntro = :productIntro WHERE PID = :productID";
                                 $stmt = $db->prepare($sql);
                                 $stmt->bindParam(':productName', $productName);
                                 $stmt->bindParam(':productPrice', $productPrice);

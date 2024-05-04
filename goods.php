@@ -165,10 +165,10 @@
                         if ($stmt->rowCount() > 0) {
                             // 逐行讀取資料並輸出
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<p>ID: " . $row["productID"] . "<br>名稱: " . $row["productName"];
+                                echo "<p>ID: " . $row["PID"] . "<br>名稱: " . $row["productName"];
                                 echo "<br>價格: " . $row["productPrice"] . "<br>數量: " . $row["productAmount"];
                                 echo "<br>介紹: " . $row["productIntro"] . "</p>";
-                                echo "<button onclick='addToCart(" . $row['productID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ")'>加入購物車</button>";
+                                echo "<button onclick='addToCart(" . $row['PID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ")'>加入購物車</button>";
                             }
                             
                         } else {

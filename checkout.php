@@ -24,15 +24,15 @@
 
                 // 更新賣家餘額
                 $update_seller_balance_stmt = $db->prepare("UPDATE users 
-                                                            INNER JOIN carts ON carts.productID = products.productID
                                                             INNER JOIN products ON users.userID = products.sellerID 
+                                                            INNER JOIN carts ON carts.PID = products.PID 
                                                             SET users.balance = users.balance + (carts.amount * products.productPrice) 
-                                                            WHERE carts.productID = :product_ID");
+                                                            WHERE carts.PID = :product_ID");
                 $update_seller_balance_stmt->bindParam(':product_ID', $product_ID);
                 $update_seller_balance_stmt->execute();
 
                 $update_product_amount_stmt = $db->prepare("UPDATE products 
-                                            INNER JOIN carts ON carts.productID = products.productID 
+                                            INNER JOIN carts ON carts.PID = products.PID 
                                             SET products.productAmount = products.productAmount - carts.amount 
                                             WHERE carts.buyerID = :user_ID");
                 $update_product_amount_stmt->bindParam(':user_ID', $user_ID);

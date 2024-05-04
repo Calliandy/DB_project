@@ -112,7 +112,7 @@
                     <p>價格:</p><input type="text" maxlength="50" id="productPrice" name="productPrice"><br>
                     <p>想賣幾個:</p><input type="text" maxlength="50" id="productAmount" name="productAmount"><br>
                     <p>商品介紹</p><input type="text" maxlength="255" id="productIntro" name="productIntro"><br>
-                    <p>商品封面圖片:</p><input type="file" maxlength="255" id="productCover" name="productCover" required><br>
+                    <p>商品封面圖片:</p><input type="file" id="productCover" name="productCover" required><br>
                     <button type="submit" name="uploadBtn">刊登</button>
                     <button type="reset" name="resetBtn">重設資訊</button>                
                 </form>

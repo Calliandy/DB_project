@@ -116,7 +116,7 @@
                                 // 準備 SQL 查詢，擷取資料
                                 $sql = "SELECT products.productName, carts.amount, products.productPrice
                                         FROM carts 
-                                        INNER JOIN products ON carts.productID = products.productID";
+                                        INNER JOIN products ON carts.PID = products.PID";
 
                                 // 準備查詢
                                 $stmt = $db->query($sql);
