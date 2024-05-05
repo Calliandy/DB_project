@@ -68,7 +68,7 @@ if (isset($_SESSION['userID']) && isset($_POST['checkout'])) {
             $orderID = $db->lastInsertId();
 
             // 將商品詳細資訊插入到 orderDetail 資料表
-            $insert_order_detail_stmt = $db->prepare("INSERT INTO orderDetail (productID, amount, orderID) VALUES (:product_ID, :productAmount, :orderID)");
+            $insert_order_detail_stmt = $db->prepare("INSERT INTO orderDetail (PID, amount, orderID) VALUES (:product_ID, :productAmount, :orderID)");
             $insert_order_detail_stmt->bindParam(':product_ID', $product_ID);
             $insert_order_detail_stmt->bindParam(':productAmount', $productAmount);
             $insert_order_detail_stmt->bindParam(':orderID', $orderID);
