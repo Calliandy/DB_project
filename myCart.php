@@ -145,7 +145,7 @@
                     <div class="detail-box">
                         <?php
                             // 設定每頁顯示的資料筆數
-                            $records_per_page = 10;
+                            $records_per_page = 5;
 
                             // 初始化搜尋條件
                             $search_keyword = '';
@@ -194,7 +194,7 @@
                                     echo "<table><tr><th>商品ID</th><th>商品名</th><th>單價</th><th>數量</th><th>操作</th></tr>";
                                     while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
-                                        echo '<img src="data:image/jpeg;base64, '. base64_encode($cart["productCover"]) . ' ">';
+                                        echo '<td><img src="data:image/jpeg;base64, '. base64_encode($cart["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br></td>';
                                         echo "<td>" . htmlspecialchars($cart['PID']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>"; // 修改此處以顯示商品名稱
                                         echo "<td>" . htmlspecialchars($cart['productPrice']) . "&nbsp&nbsp</td>";
@@ -216,8 +216,20 @@
                                     echo "0 筆結果";
                                 }
 
-                                // 獲取總共的資料筆數
-                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM carts");
+                                // 計算符合搜尋條件的總共的資料筆數
+                                $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM carts WHERE buyerID = :userID");
+                                $total_records_stmt->bindParam(':userID', $_SESSION['userID']);
+                                if (!empty($search_keyword)) {
+                                    $total_records_stmt = $db->prepare("SELECT COUNT(*) 
+                                    FROM carts 
+                                    INNER JOIN products 
+                                    ON carts.PID = products.PID 
+                                    WHERE carts.buyerID = :userID 
+                                    AND products.productName LIKE :keyword");
+                                    $total_records_stmt->bindParam(':userID', $_SESSION['userID']);
+                                    $total_records_stmt->bindParam(':keyword', $keyword, PDO::PARAM_STR);
+                                }
+                                $total_records_stmt->execute();
                                 $total_records = $total_records_stmt->fetchColumn();
 
                                 // 計算總頁數
@@ -226,7 +238,15 @@
                                 // 顯示分頁連結
                                 echo "<br>分頁";
                                 for ($i = 1; $i <= $total_pages; $i++) {
-                                    echo "<a href='?page=$i'>$i</a> ";
+                                    // 顯示分頁連結時也包含搜尋關鍵字
+                                    $page_link = "?page=$i";
+                                    if (!empty($search_keyword)) {
+                                        $page_link .= "&keyword=$search_keyword";
+                                    }
+                                    // 檢查當前頁碼是否小於或等於總頁數，只有在這種情況下才生成分頁連結
+                                    if ($i <= $total_pages) {
+                                        echo "<a href='$page_link'>$i</a> ";
+                                    }
                                 }
                             } catch (PDOException $e) {
                                 // 處理錯誤

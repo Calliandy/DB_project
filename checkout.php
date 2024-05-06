@@ -55,17 +55,23 @@ if (isset($_SESSION['userID']) && isset($_POST['checkout'])) {
             // 插入訂單資訊到 orders 資料表
             $date = date("Y-m-d H:i:s");
             $isDelivered="NO";
-            $insert_order_stmt = $db->prepare("INSERT INTO orders (sellerID, buyerID, totalPrice, date, isDelivered) 
-                                                VALUES ((SELECT sellerID FROM products WHERE PID = :product_ID), :buyer_ID, :totalPrice, :date, :isDelivered)");
+            $insert_order_stmt = $db->prepare("INSERT INTO orders (sellerID, buyerID, date, isDelivered) 
+                                                VALUES ((SELECT sellerID FROM products WHERE PID = :product_ID), :buyer_ID, :date, :isDelivered)");
             $insert_order_stmt->bindParam(':product_ID', $product_ID);
             $insert_order_stmt->bindParam(':buyer_ID', $buyer_ID);
-            $insert_order_stmt->bindParam(':totalPrice', $productTotalPrice);
             $insert_order_stmt->bindParam(':date', $date);
             $insert_order_stmt->bindParam(':isDelivered', $isDelivered);
             $insert_order_stmt->execute();
 
             // 獲取新生成的 orderID
             $orderID = $db->lastInsertId();
+
+            // 插入訂單資訊到 payment 資料表
+            $insert_payment_stmt = $db->prepare("INSERT INTO payment (orderID, totalMoney) 
+                                                VALUES (:orderID, :totalMoney)");
+            $insert_payment_stmt->bindParam(':orderID', $orderID);
+            $insert_payment_stmt->bindParam(':totalMoney', $productTotalPrice);
+            $insert_payment_stmt->execute();
 
             // 將商品詳細資訊插入到 orderDetail 資料表
             $insert_order_detail_stmt = $db->prepare("INSERT INTO orderDetail (PID, amount, orderID) VALUES (:product_ID, :productAmount, :orderID)");

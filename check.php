@@ -165,7 +165,7 @@
                                     echo "<td>&nbsp;&nbsp;$productAmount&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productPrice&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productTotalPrice&nbsp;&nbsp;</td>";
-                                    echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) . ' ">';
+                                    echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br>';
                                     echo "<td><form action='checkout.php' method='post'>";
                                     echo "<input type='hidden' name='productAmount' value='$productAmount'>";
                                     echo "<input type='hidden' name='productID' value='$productID'>";

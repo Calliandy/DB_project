@@ -137,21 +137,24 @@
             <div class="col-md-6">
             <div class="detail-box">
                 <?php
-                    $stmt = $db->prepare("SELECT orders.totalPrice, orders.date, orderDetail.PID, orderDetail.amount FROM orderDetail JOIN orders ON orderDetail.orderID = orders.orderID");
+                    $stmt = $db->prepare("SELECT orders.date, orderDetail.PID, orderDetail.amount FROM orderDetail JOIN orders ON orderDetail.orderID = orders.orderID");
                     $Pstmt = $db->prepare("SELECT products.productName, products.productCover FROM orderDetail JOIN products ON orderDetail.PID = products.PID");
                     $Ustmt = $db->prepare("SELECT users.username FROM orders JOIN users ON orders.sellerID = users.userID");
+                    $Paystmt = $db->prepare("SELECT payment.totalMoney FROM orders JOIN payment ON orders.orderID = payment.orderID");
                     $stmt->execute();
                     $Pstmt->execute();
                     $Ustmt->execute();
+                    $Paystmt->execute();
                     while ($detail = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $product=$Pstmt->fetch(PDO::FETCH_ASSOC);
                         $user=$Ustmt->fetch(PDO::FETCH_ASSOC);
-                        echo '<img src="data:image/jpeg;base64, '. base64_encode($product["productCover"]) . ' "><br>';
-                        echo "Seller Name: " . $user['username'] . "<br>";
-                        echo "Total Price: " . $detail['totalPrice'] . "<br>";
-                        echo "Date: " . $detail['date'] . "<br>";
-                        echo "Product Name: " . $product['productName'] . "<br>";
-                        echo "Amount: " . $detail['amount'] . "<br>";
+                        $payment=$Paystmt->fetch(PDO::FETCH_ASSOC);
+                        echo '<img src="data:image/jpeg;base64, '. base64_encode($product["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br>';
+                        echo "賣家名稱: " . $user['username'] . "<br>";
+                        echo "總價: " . $payment['totalMoney'] . "<br>";
+                        echo "購買日期: " . $detail['date'] . "<br>";
+                        echo "商品名稱: " . $product['productName'] . "<br>";
+                        echo "數量: " . $detail['amount'] . "<br>";
                         echo "<br>";
                     }
                 ?>

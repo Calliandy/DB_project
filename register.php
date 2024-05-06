@@ -56,7 +56,7 @@
                         $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
                         $stmt = $db->prepare("INSERT INTO users (role, account, username, password, balance) VALUES (:role, :account, :username, :password, :balance)");
                         $role='user';
-                        $balance=1000;
+                        $balance=10000;
                         $stmt->bindParam(':role', $role);
                         $stmt->bindParam(':account', $account);
                         $stmt->bindParam(':username', $userName);
