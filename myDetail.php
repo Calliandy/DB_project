@@ -138,7 +138,7 @@
             <div class="detail-box">
                 <?php
                     $stmt = $db->prepare("SELECT orders.totalPrice, orders.date, orderDetail.PID, orderDetail.amount FROM orderDetail JOIN orders ON orderDetail.orderID = orders.orderID");
-                    $Pstmt = $db->prepare("SELECT products.productName FROM orderDetail JOIN products ON orderDetail.PID = products.PID");
+                    $Pstmt = $db->prepare("SELECT products.productName, products.productCover FROM orderDetail JOIN products ON orderDetail.PID = products.PID");
                     $Ustmt = $db->prepare("SELECT users.username FROM orders JOIN users ON orders.sellerID = users.userID");
                     $stmt->execute();
                     $Pstmt->execute();
@@ -146,6 +146,7 @@
                     while ($detail = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $product=$Pstmt->fetch(PDO::FETCH_ASSOC);
                         $user=$Ustmt->fetch(PDO::FETCH_ASSOC);
+                        echo '<img src="data:image/jpeg;base64, '. base64_encode($product["productCover"]) . ' "><br>';
                         echo "Seller Name: " . $user['username'] . "<br>";
                         echo "Total Price: " . $detail['totalPrice'] . "<br>";
                         echo "Date: " . $detail['date'] . "<br>";

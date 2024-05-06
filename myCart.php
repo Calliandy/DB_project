@@ -163,7 +163,7 @@
 
                             try {
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
-                                $sql = "SELECT carts.*, products.productName, products.productPrice 
+                                $sql = "SELECT carts.*, products.productName, products.productCover, products.productPrice 
                                         FROM carts 
                                         INNER JOIN products ON carts.PID = products.PID";
                                 // 添加搜尋條件
@@ -194,6 +194,7 @@
                                     echo "<table><tr><th>商品ID</th><th>商品名</th><th>單價</th><th>數量</th><th>操作</th></tr>";
                                     while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
+                                        echo '<img src="data:image/jpeg;base64, '. base64_encode($cart["productCover"]) . ' ">';
                                         echo "<td>" . htmlspecialchars($cart['PID']) . "&nbsp&nbsp</td>";
                                         echo "<td>" . htmlspecialchars($cart['productName']) . "&nbsp&nbsp</td>"; // 修改此處以顯示商品名稱
                                         echo "<td>" . htmlspecialchars($cart['productPrice']) . "&nbsp&nbsp</td>";

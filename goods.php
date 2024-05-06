@@ -2,43 +2,76 @@
 <html>
 
 <head>
-  <!-- Basic -->
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="images/favicon.png" type="">
+    <!-- Basic -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Site Metas -->
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="shortcut icon" href="images/favicon.png" type="">
 
-  <title> 丹尼斯的煉油廠 </title>
+    <title> 丹尼斯的煉油廠 </title>
+    <style>
+                .product {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 300px;
+        }
 
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+        .product img {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
 
-  <!-- fonts style -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+        .product p {
+            font-size: 14px;
+        }
 
-  <!--owl slider stylesheet -->
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+        .product button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
 
-  <!-- font awesome style -->
-  <link href="css/font-awesome.min.css" rel="stylesheet" />
+        .product button:hover {
+            background-color: #45a049;
+        }
+    </style> 
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
 
-  <!-- Custom styles for this template -->
-  <link href="css/style.css" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="css/responsive.css" rel="stylesheet" />
-  <?php
-    include "db_connect.php";
-    session_start();
-    if (!isset($_SESSION['username'])) {
-        echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
-        exit(); 
-    }
-  ?>
+    <!-- fonts style -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!--owl slider stylesheet -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+
+    <!-- font awesome style -->
+    <link href="css/font-awesome.min.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="css/style.css" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="css/responsive.css" rel="stylesheet" />
+    <?php
+        include "db_connect.php";
+        session_start();
+        if (!isset($_SESSION['username'])) {
+            echo "<script>alert('偵測到未登入'); window.location.href = 'login.php';</script>";
+            exit(); 
+        }
+    ?>
 </head>
 
 <body class="sub_page">
@@ -189,12 +222,14 @@
                         if ($stmt->rowCount() > 0) {
                             // 逐行讀取資料並輸出
                             while ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo "<p>ID: " . $product["PID"] . "<br>名稱: " . $product["productName"];
+                                echo '<div class="product">';
+                                echo '<img src="data:image/jpeg;base64, '. base64_encode($product["productCover"]) . ' ">';
+                                echo "<p class='product'>ID: " . $product["PID"] . "<br>名稱: " . $product["productName"];
                                 echo "<br>價格: " . $product["productPrice"] . "<br>數量: " . $product["productAmount"];
                                 echo "<br>介紹: " . $product["productIntro"] . "</p>";
-                                echo "<button onclick='addToCart(" . $product['PID'] . ", \"" . $product['productName'] . "\", " . $product['productAmount'] . ", \"" . $product['sellerID'] . "\")'>加入購物車</button>";
-
-                            }
+                                echo "<button class='product' onclick='addToCart(" . $product['PID'] . ", \"" . $product['productName'] . "\", " . $product['productAmount'] . ", \"" . $product['sellerID'] . "\")'>加入購物車</button>";
+                                echo '</div>';
+                            }                            
                             
                         } else {
                             echo "0 筆結果";

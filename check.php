@@ -138,7 +138,7 @@
                         <?php
                             try {
                                 // 準備 SQL 查詢，擷取資料
-                                $sql = "SELECT products.PID, products.productName, carts.amount, products.productPrice
+                                $sql = "SELECT products.PID, products.productName, products.productCover, carts.amount, products.productPrice
                                         FROM carts 
                                         INNER JOIN products ON carts.PID = products.PID";
 
@@ -165,6 +165,7 @@
                                     echo "<td>&nbsp;&nbsp;$productAmount&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productPrice&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productTotalPrice&nbsp;&nbsp;</td>";
+                                    echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) . ' ">';
                                     echo "<td><form action='checkout.php' method='post'>";
                                     echo "<input type='hidden' name='productAmount' value='$productAmount'>";
                                     echo "<input type='hidden' name='productID' value='$productID'>";

@@ -131,7 +131,7 @@
         <div class="row">
             <div class="col-md-6">
             <div class="detail-box">
-                <form method="POST" action="">
+                <form method="POST" action="" enctype="multipart/form-data">
                     <p>商品名稱:</p><input type="text" maxlength="50" id="productName" name="productName"><br>
                     <p>價格:</p><input type="text" maxlength="50" id="productPrice" name="productPrice"><br>
                     <p>想賣幾個:</p><input type="text" maxlength="50" id="productAmount" name="productAmount"><br>
@@ -152,13 +152,14 @@
                                     $productPrice = $_POST['productPrice'];
                                     $productAmount = $_POST['productAmount'];
                                     $productIntro = $_POST['productIntro'];
-                                    $productCover = $_POST['productCover'];
+                                    $productCover = $_FILES['productCover'];
                                     $sellerID = $_SESSION['userID'];
                                     
                                     try {
                                         // Prepare SQL statement
                                         $stmt = $db->prepare("SELECT * FROM products WHERE productName = :productName");
                                         $stmt->bindParam(':productName', $productName);
+                                        $imageContent = file_get_contents($productCover['tmp_name']);
                                         
                                         // Execute the query
                                         $stmt->execute();
@@ -174,7 +175,7 @@
                                         $stmt->bindParam(':productPrice', $productPrice);
                                         $stmt->bindParam(':productAmount', $productAmount);
                                         $stmt->bindParam(':productIntro', $productIntro);
-                                        $stmt->bindParam(':productCover', $productCover);
+                                        $stmt->bindParam(':productCover', $imageContent, PDO::PARAM_LOB);
                                         $stmt->bindParam(':sellerID', $sellerID);
                                         
                                         // Execute the query
