@@ -138,18 +138,20 @@
                         <?php
                             try {
                                 // 準備 SQL 查詢，擷取資料
-                                $sql = "SELECT products.PID, products.productName, products.productCover, carts.amount, products.productPrice
+                                $sql = "SELECT carts.*, products.productName, products.productCover, products.productPrice 
                                         FROM carts 
-                                        INNER JOIN products ON carts.PID = products.PID";
+                                        INNER JOIN products ON carts.PID = products.PID WHERE carts.buyerID = :userID";
 
                                 // 準備查詢
-                                $stmt = $db->query($sql);
-
+                                $stmt = $db->prepare($sql);
+                                $stmt->bindParam(":userID",$_SESSION['userID']);
                                 // 初始化總價格
                                 $totalPrice = 0;
 
+                                $stmt->execute();
+
                                 // 輸出表格標題
-                                echo "<table><tr><th>產品名稱</th><th>數量</th><th>單價</th><th>總價</th><th>操作</th></tr>";
+                                echo "<table><tr><th>產品名稱</th><th>數量</th><th>單價</th><th>總價</th><th>圖片</th><th>操作</th></tr>";
 
                                 // 處理每一行資料
                                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -165,7 +167,7 @@
                                     echo "<td>&nbsp;&nbsp;$productAmount&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productPrice&nbsp;&nbsp;</td>";
                                     echo "<td>&nbsp;&nbsp;$productTotalPrice&nbsp;&nbsp;</td>";
-                                    echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br>';
+                                    echo '<td><img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) .'" style="max-width: 500px; max-height: 500px;"></td><br>';
                                     echo "<td><form action='checkout.php' method='post'>";
                                     echo "<input type='hidden' name='productAmount' value='$productAmount'>";
                                     echo "<input type='hidden' name='productID' value='$productID'>";

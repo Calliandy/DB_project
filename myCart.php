@@ -165,10 +165,10 @@
                                 // 準備 SQL 查詢，擷取指定範圍內的資料
                                 $sql = "SELECT carts.*, products.productName, products.productCover, products.productPrice 
                                         FROM carts 
-                                        INNER JOIN products ON carts.PID = products.PID";
+                                        INNER JOIN products ON carts.PID = products.PID WHERE carts.buyerID = :userID";
                                 // 添加搜尋條件
                                 if (!empty($search_keyword)) {
-                                    $sql .= " WHERE products.productName LIKE :keyword";
+                                    $sql .= " AND products.productName LIKE :keyword";
                                 }
 
                                 $sql .= " LIMIT :start_index, :records_per_page";
@@ -177,6 +177,7 @@
                                 $stmt = $db->prepare($sql);
 
                                 // 綁定參數
+                                $stmt->bindParam(':userID', $_SESSION['userID']);
                                 $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
                                 $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
 
@@ -191,7 +192,7 @@
                                 // 檢查是否有資料
                                 if ($stmt->rowCount() > 0) {
                                     // 輸出資料表格
-                                    echo "<table><tr><th>商品ID</th><th>商品名</th><th>單價</th><th>數量</th><th>操作</th></tr>";
+                                    echo "<table><tr><th>商品圖片</th><th>商品ID</th><th>商品名</th><th>單價</th><th>數量</th><th>操作</th></tr>";
                                     while ($cart = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                         echo "<tr>";
                                         echo '<td><img src="data:image/jpeg;base64, '. base64_encode($cart["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br></td>';
