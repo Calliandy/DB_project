@@ -111,7 +111,7 @@
                         <?php
 
                             // 設定每頁顯示的資料筆數
-                            $records_per_page = 10;
+                            $records_per_page = 5;
 
                             // 初始化搜尋條件
                             $search_keyword = '';
@@ -173,13 +173,19 @@
                                                 </form></td>";
                                         echo "</tr>";
                                     }
-                                    echo "</table>";
+                                    echo "</table>";             
                                 } else {
                                     echo "0 筆結果";
                                 }
 
-                                // 獲取總共的資料筆數
-                                $total_records_stmt = $db->query("SELECT COUNT(*) FROM users");
+                                // 獲取特定賣家的商品總數
+                                if(!empty($search_keyword)){
+                                    $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username LIKE :keyword");
+                                    $total_records_stmt->bindParam(":keyword",$keyword);
+                                }else{
+                                    $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM users");
+                                }
+                                $total_records_stmt->execute();
                                 $total_records = $total_records_stmt->fetchColumn();
 
                                 // 計算總頁數
@@ -188,8 +194,17 @@
                                 // 顯示分頁連結
                                 echo "<br>分頁";
                                 for ($i = 1; $i <= $total_pages; $i++) {
-                                    echo "<a href='?page=$i'>$i</a> ";
+                                    // 顯示分頁連結時也包含搜尋關鍵字
+                                    $page_link = "?page=$i";
+                                    if (!empty($search_keyword)) {
+                                        $page_link .= "&keyword=$search_keyword";
+                                    }
+                                    // 檢查當前頁碼是否小於或等於總頁數，只有在這種情況下才生成分頁連結
+                                    if ($i <= $total_pages) {
+                                        echo "<a href='$page_link'>$i</a> ";
+                                    }
                                 }
+
                             } catch (PDOException $e) {
                                 // 處理錯誤
                                 echo "Error: " . $e->getMessage();

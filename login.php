@@ -135,7 +135,6 @@
                 </h3>
                 <p>
                     <form method="POST" action="">
-                        名稱:<input type="text" maxlength="50" id="userInputName" name="userInputName" placeholder="可以不輸入"><br>
                         帳號:<input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"><br>
                         密碼:<input type="password" maxlength="50" id="userInputPassword" name="userInputPassword"><br>
                         <button type="submit" name="loginBtn">登入</button>

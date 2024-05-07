@@ -214,8 +214,16 @@
                                 echo "0 筆結果";
                             }
 
-                            // 獲取總共的資料筆數
-                            $total_records_stmt = $db->query("SELECT COUNT(*) FROM products");
+                            // 獲取特定賣家的商品總數
+                            if(!empty($search_keyword)){
+                                $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM products WHERE sellerID = :userID AND productName LIKE :keyword");
+                                $total_records_stmt->bindParam(":userID",$_SESSION['userID']);
+                                $total_records_stmt->bindParam(":keyword",$keyword);
+                            }else{
+                                $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM products WHERE sellerID = :userID");
+                                $total_records_stmt->bindParam(":userID",$_SESSION['userID']);
+                            }
+                            $total_records_stmt->execute();
                             $total_records = $total_records_stmt->fetchColumn();
 
                             // 計算總頁數
@@ -224,7 +232,15 @@
                             // 顯示分頁連結
                             echo "<br>分頁";
                             for ($i = 1; $i <= $total_pages; $i++) {
-                                echo "<a href='?page=$i'>$i</a> ";
+                                // 顯示分頁連結時也包含搜尋關鍵字
+                                $page_link = "?page=$i";
+                                if (!empty($search_keyword)) {
+                                    $page_link .= "&keyword=$search_keyword";
+                                }
+                                // 檢查當前頁碼是否小於或等於總頁數，只有在這種情況下才生成分頁連結
+                                if ($i <= $total_pages) {
+                                    echo "<a href='$page_link'>$i</a> ";
+                                }
                             }
                         } catch (PDOException $e) {
                             // Handle any errors
