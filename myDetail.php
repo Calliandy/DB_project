@@ -174,6 +174,7 @@
                             $sql .= " AND products.productName LIKE :keyword";
                         }
 
+                        $sql .= " WHERE orders.buyerID=:userID";
                         $sql .= " LIMIT :start_index, :records_per_page";
 
                         // 準備查詢
@@ -182,7 +183,7 @@
                         // 綁定參數
                         $stmt->bindParam(':start_index', $start_index, PDO::PARAM_INT);
                         $stmt->bindParam(':records_per_page', $records_per_page, PDO::PARAM_INT);
-
+                        $stmt->bindParam(':userID',$_SESSION['userID']);
                         // 添加搜尋參數
                         if (!empty($search_keyword)) {
                             $keyword = '%' . $search_keyword . '%';

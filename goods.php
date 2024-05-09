@@ -222,13 +222,16 @@
                         if ($stmt->rowCount() > 0) {
                             // 逐行讀取資料並輸出
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                echo '<div class="product">';
-                                echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br>';
-                                echo "<p class='product'>賣家名稱: " . $row["username"] . "<br>商品名稱: " . $row["productName"];
-                                echo "<br>商品價格: " . $row["productPrice"] . "<br>數量: " . $row["productAmount"];
-                                echo "<br>商品介紹: " . $row["productIntro"] . "</p>";
-                                echo "<button class='product' onclick='addToCart(" . $row['PID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ", \"" . $row['sellerID'] . "\")'>加入購物車</button>";
-                                echo '</div>';
+                                if($row['productAmount']>0){
+                                    echo '<div class="product">';
+                                    echo '<img src="data:image/jpeg;base64, '. base64_encode($row["productCover"]) .'" style="max-width: 500px; max-height: 500px;"><br>';
+                                    echo "<p class='product'>賣家名稱: " . $row["username"] . "<br>商品名稱: " . $row["productName"];
+                                    echo "<br>商品價格: " . $row["productPrice"] . "<br>數量: " . $row["productAmount"];
+                                    echo "<br>商品介紹: " . $row["productIntro"] . "</p>";
+                                    echo "<button class='product' onclick='addToCart(" . $row['PID'] . ", \"" . $row['productName'] . "\", " . $row['productAmount'] . ", \"" . $row['sellerID'] . "\")'>加入購物車</button>";
+                                    echo '</div>';
+                                }
+                                
                             }
                         } else {
                             echo "0 筆結果";

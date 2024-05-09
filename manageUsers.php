@@ -169,7 +169,9 @@
                                         echo "<td>" . htmlspecialchars($user['username']) . "&nbsp&nbsp</td>";
                                         echo "<td><form action=\"manageUsers.php\" method=\"post\" onsubmit=\"return confirmDelete();\">
                                                 <input type=\"hidden\" name=\"deleteID\" value=\"" . $user['userID'] . "\">
-                                                <button type=\"submit\" value=\"deleteUser\" style=\"background-color: #FF0000; color: white;\">刪除使用者</button>
+                                                <button type=\"submit\" name=\"deleteUserFlag\" value=\"true\" style=\"background-color: #FF0000; color: white;\">刪除使用者</button>
+                                                <input type=\"hidden\" name=\"resetPasswordID\" value=\"".$user['userID']."\">
+                                                <button type=\"submit\" name=\"resetFlag\" value=\"true\" style=\"background-color: green; color: white;\">重設密碼</button>
                                                 </form></td>";
                                         echo "</tr>";
                                     }
@@ -178,7 +180,7 @@
                                     echo "0 筆結果";
                                 }
 
-                                // 獲取特定賣家的商品總數
+                                // 獲取特定名稱的使用者總數
                                 if(!empty($search_keyword)){
                                     $total_records_stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE username LIKE :keyword");
                                     $total_records_stmt->bindParam(":keyword",$keyword);
@@ -211,13 +213,39 @@
                             }
 
                             // 處理刪除使用者的表單提交
-                            if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['deleteID']))) {
+                            if (($_SERVER['REQUEST_METHOD'] === "POST") && (isset($_POST['removeuserFlag']))) {
                                 $deleteUserID = $_POST['deleteID'];
                                 $stmt = $db->prepare("DELETE FROM `users` WHERE userID = :deleteID");
                                 $stmt->bindParam(':deleteID', $deleteUserID);
                                 $stmt->execute();
 
-                                echo "<script>window.location.href = 'manageUsers.php';</script>";
+                                $removeFromCart = $db -> prepare("DELETE FROM `carts` WHERE buyerID = :deleteID"); //Remove user-related ID from cart table
+                                $removeFromCart->bindParam(':deleteID', $deleteUserID);
+                                $removeFromCart->execute();
+
+                                $removeFromProduct = $db -> prepare("DELETE FROM `products` WHERE sellerID = :deleteID"); //Remove user-related ownerID from Product table
+                                $removeFromProduct->bindParam(':deleteID', $deleteUserID);
+                                $removeFromProduct->execute();
+
+                                echo "<script>alert('已刪除使用者相關所有資料'); window.location.href = 'manageUsers.php';</script>";
+                            }
+
+                            //處理重設密碼
+                            if (($_SERVER['REQUEST_METHOD'] === "POST")&&($_POST['resetFlag'])){
+                                //find username
+                                $resetPasswordID = $_POST['resetPasswordID'];
+                                $findUsername = $db -> prepare("SELECT username FROM `users` WHERE userID = :ID");
+                                $findUsername -> bindParam(':ID', $resetPasswordID);
+                                $findUsername -> execute();
+                                $user = $findUsername -> fetch(PDO::FETCH_ASSOC);
+
+                                $stmt = $db -> prepare("UPDATE `users` SET `password` = :newPassword WHERE userID = :resetPasswordID"); // await
+                                $newPassword = password_hash($user['username'], PASSWORD_DEFAULT);
+                                $stmt->bindParam(':newPassword', $newPassword);
+                                $stmt->bindParam(':resetPasswordID', $resetPasswordID);
+                                $stmt->execute();
+                                echo "<script>alert('密碼已經更新為使用者名稱'); window.location.href='manageUsers.php';</script>";
+                                exit;
                             }
                         ?>
                     </div>

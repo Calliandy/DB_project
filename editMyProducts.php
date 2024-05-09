@@ -266,7 +266,7 @@
                                 $stmt->bindParam(':productID', $productId);
                                 $stmt->execute();
                                 // Redirect to the same page to update the product list
-                                header("Location: {$_SERVER['PHP_SELF']}");
+                                echo "<script>alert('編輯商品成功'); window.location.href='editMyProducts.php'; </script>";
                                 exit();
                             } catch (PDOException $e) {
                                 // Handle any errors

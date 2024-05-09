@@ -34,43 +34,29 @@
     <?php
         include "db_connect.php";
         session_start();
-        if($_SERVER["REQUEST_METHOD"]=="POST"){
-            if(isset($_POST['loginBtn'])){
-                if(empty($_POST['userInputAccount'])||empty($_POST['userInputPassword'])){
-                    echo "看來有人忘記輸入囉";
-                }else{
-                    $account = $_POST['userInputAccount'];
-                    $userPassword = $_POST['userInputPassword'];
-                    $hashedPassword=password_hash($userPassword,PASSWORD_DEFAULT);
-                    //執行登入相關操作
-                    $stmt=$db->prepare("SELECT * FROM users WHERE account = :account");
-                    $stmt->bindParam(':account',$account);
+        if($_SERVER["REQUEST_METHOD"]=="POST" && isset($_POST['resetBtn'])){
+            if(empty($_POST['userInputAccount'])){
+                echo "<script>alert('請輸入您的帳號');</script>";
+            }else{
+                $account = $_POST['userInputAccount'];
+                //執行登入相關操作
+                $stmt=$db->prepare("SELECT * FROM users WHERE account = :account");
+                $stmt->bindParam(':account',$account);
+                $stmt->execute();
+                $user=$stmt->fetch(PDO::FETCH_ASSOC);
+                if(($stmt->rowCount()>0)&&($user['role']=="user")){
+                    $newPassword=$user['account'];
+                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                    $stmt = $db->prepare("UPDATE users SET password=:hashedpassword WHERE account=:account");
+                    $stmt->bindParam(':hashedpassword', $hashedPassword);
+                    $stmt->bindParam(':account', $account);
                     $stmt->execute();
-                    $user=$stmt->fetch(PDO::FETCH_ASSOC);
-                    if(($user)&& (password_verify($userPassword,$user['password']))){
-                        //登入成功
-                        $_SESSION['username']=$user['username'];
-                        $_SESSION['account']=$user['account'];
-                        $_SESSION['userID']=$user['userID'];
-                        $_SESSION['role']=$user['role'];
-                        if($user['role']=="user"){
-                            header("Location: menu.php");
-                            exit();
-                        }elseif($user['role']=="admin"){
-                            header("Location: manageUsers.php");
-                            exit();
-                        }
-                        
-                    } else{
-                        echo"<script>alert('登入失敗!'); window.location.href='login.php' </script>";
-                    }
+                    echo "<script>alert('您的密碼已重設為您的帳號!'); window.location.href='login.php'</script>";
+                } elseif($stmt->rowCount==0){
+                    echo "<script>alert('找不到您的帳號名稱!'); window.location.href='forgetPassword.php'</script>";
+                } elseif($user['role']=="admin"){
+                    echo "<script>alert('蠢貨，還敢皮阿'); window.location.href='index.html'</script>";
                 }
-            } elseif(isset($_POST['signupBtn'])){
-                header("Location: register.php");
-                exit();
-            } elseif(isset($_POST['resetBtn'])){
-                header("Location: forgetPassword.php");
-                exit();
             }
         }
     ?>
@@ -106,7 +92,7 @@
                     <a class="nav-link" href="index.html">Home </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#"> <i class="fa fa-user" aria-hidden="true"></i> Login</a>
+                    <a class="nav-link" href="login.php"> <i class="fa fa-user" aria-hidden="true"></i> Login</a>
                 </li>
                 <form class="form-inline">
                     <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
@@ -127,21 +113,18 @@
         <div class="container  ">
         <div class="heading_container heading_center">
             <h2>
-            登入頁面
+            重設密碼頁面
             </h2>
         </div>
         <div class="row">
             <div class="col-md-6">
             <div class="detail-box">
                 <h3>
-                您的登入資訊請完整輸入在下方
+                您的資訊請完整輸入在下方
                 </h3>
                 <p>
                     <form method="POST" action="">
                         帳號:<input type="text" maxlength="50" id="userInputAccount" name="userInputAccount"><br>
-                        密碼:<input type="password" maxlength="50" id="userInputPassword" name="userInputPassword"><br>
-                        <button type="submit" name="loginBtn">登入</button>
-                        <button type="submit" name="signupBtn">註冊</button>
                         <button type="submit" name="resetBtn">重設密碼</button>
                     </form>
                 </p>
